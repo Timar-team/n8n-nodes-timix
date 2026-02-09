@@ -1,2 +1,4 @@
-dist
+.timix_last_path
 node_modules
+dist
+.DS_Store
