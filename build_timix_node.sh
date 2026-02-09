@@ -77,6 +77,7 @@ if [[ "${MODE}" == "2" ]]; then
 fi
 
 TARGET_DIR="${CUSTOM_DIR%/}/${PACKAGE_NAME}"
+SOURCE_DIR="${PROJECT_DIR}/dist"
 
 echo "Checking dependencies..."
 if [[ ! -d "${PROJECT_DIR}/node_modules" ]]; then
@@ -91,14 +92,17 @@ npm run build
 echo "Build finished."
 
 echo "Deploying build output..."
-if [[ ! -d "${PROJECT_DIR}/dist" ]]; then
+if [[ ! -d "${SOURCE_DIR}" ]]; then
 	echo "Error: dist folder not found. Did the build succeed?"
 	exit 1
 fi
 
+echo "Removing previous deployment: ${TARGET_DIR}"
+rm -rf "${TARGET_DIR}"
 mkdir -p "${TARGET_DIR}"
-rm -rf "${TARGET_DIR}/dist"
-cp -R "${PROJECT_DIR}/dist" "${TARGET_DIR}/dist"
+
+echo "Copying build output from ${SOURCE_DIR} to ${TARGET_DIR}..."
+cp -R "${SOURCE_DIR}/." "${TARGET_DIR}/"
 cp "${PROJECT_DIR}/package.json" "${TARGET_DIR}/package.json"
 echo "Deployed to: ${TARGET_DIR}"
 
@@ -123,6 +127,10 @@ if [[ "${MODE}" == "1" ]]; then
 				echo "Restarting: ${CONTAINER_NAME}"
 				docker restart "${CONTAINER_ID}" >/dev/null
 				echo "Docker restart completed."
+				read -r -p "Follow container logs now? (y/N): " FOLLOW_LOGS
+				if [[ "${FOLLOW_LOGS}" == "y" || "${FOLLOW_LOGS}" == "Y" ]]; then
+					docker logs -f "${CONTAINER_ID}"
+				fi
 			else
 				echo "Docker restart skipped."
 			fi

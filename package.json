@@ -17,6 +17,7 @@
 	},
 	"scripts": {
 		"build": "n8n-node build",
+		"postbuild": "mkdir -p dist/icons && cp -R icons/. dist/icons/",
 		"build:watch": "tsc --watch",
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
