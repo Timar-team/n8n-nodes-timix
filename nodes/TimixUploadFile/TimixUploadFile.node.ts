@@ -54,7 +54,7 @@ export class TimixUploadFile implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Timix Upload File',
 		name: 'timixUploadFile',
-		icon: { light: 'file:../../icons/timix.svg', dark: 'file:../../icons/timix.dark.svg' },
+		icon: { light: 'file:timix.svg', dark: 'file:timix.dark.svg' },
 		group: ['input'],
 		version: 1,
 		description: 'Upload files to Timix HR',

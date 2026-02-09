@@ -1,7 +1,7 @@
 {
 	"displayName": "Timix Upload File",
 	"name": "timixUploadFile",
-	"icon": "file:../../icons/timix.svg",
+	"icon": "file:timix.svg",
 	"group": [
 		"input"
 	],

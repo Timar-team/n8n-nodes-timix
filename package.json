@@ -17,7 +17,7 @@
 	},
 	"scripts": {
 		"build": "n8n-node build",
-		"postbuild": "mkdir -p dist/icons && cp -R icons/. dist/icons/",
+		"postbuild": "mkdir -p dist/icons dist/nodes/TimixUploadFile && cp -R icons/. dist/icons/ && cp icons/timix.svg dist/nodes/TimixUploadFile/timix.svg && cp icons/timix.dark.svg dist/nodes/TimixUploadFile/timix.dark.svg",
 		"build:watch": "tsc --watch",
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
