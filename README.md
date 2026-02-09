@@ -50,7 +50,7 @@ The script will:
 3. Create the folder if it does not exist
 4. Run `npm install` if needed
 5. Run `npm run build`
-6. Install this package into the custom folder
+6. Deploy the build output to `<custom-folder>/<package-name>`
 7. Optionally restart a Docker container (Update mode only)
 
 ## Run In Development Mode (Recommended)

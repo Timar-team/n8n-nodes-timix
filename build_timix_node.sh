@@ -7,6 +7,19 @@ PROJECT_DIR="${SCRIPT_DIR}"
 
 echo "Timix build script started."
 
+if ! command -v node >/dev/null 2>&1; then
+	echo "Error: Node.js is required but not found in PATH."
+	exit 1
+fi
+
+PACKAGE_NAME="$(node -p "require('${PROJECT_DIR}/package.json').name" 2>/dev/null || true)"
+if [[ -z "${PACKAGE_NAME}" ]]; then
+	echo "Error: Could not read package name from package.json."
+	exit 1
+fi
+
+echo "Detected package name: ${PACKAGE_NAME}"
+
 echo "Choose mode:"
 echo "1) Update (reuse last path)"
 echo "2) Fresh setup (ask path, no Docker restart)"
@@ -63,6 +76,8 @@ if [[ "${MODE}" == "2" ]]; then
 	echo "${CUSTOM_DIR}" > "${LAST_PATH_FILE}"
 fi
 
+TARGET_DIR="${CUSTOM_DIR%/}/${PACKAGE_NAME}"
+
 echo "Checking dependencies..."
 if [[ ! -d "${PROJECT_DIR}/node_modules" ]]; then
 	echo "node_modules not found. Running npm install..."
@@ -75,15 +90,17 @@ echo "Starting build..."
 npm run build
 echo "Build finished."
 
-echo "Installing into custom folder..."
-pushd "${CUSTOM_DIR}" >/dev/null
-if [[ ! -f "package.json" ]]; then
-	npm init -y >/dev/null
+echo "Deploying build output..."
+if [[ ! -d "${PROJECT_DIR}/dist" ]]; then
+	echo "Error: dist folder not found. Did the build succeed?"
+	exit 1
 fi
 
-npm install "${PROJECT_DIR}"
-popd >/dev/null
-echo "Install completed."
+mkdir -p "${TARGET_DIR}"
+rm -rf "${TARGET_DIR}/dist"
+cp -R "${PROJECT_DIR}/dist" "${TARGET_DIR}/dist"
+cp "${PROJECT_DIR}/package.json" "${TARGET_DIR}/package.json"
+echo "Deployed to: ${TARGET_DIR}"
 
 if [[ "${MODE}" == "1" ]]; then
 	if command -v docker >/dev/null 2>&1; then

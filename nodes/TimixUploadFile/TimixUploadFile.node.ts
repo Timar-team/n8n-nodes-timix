@@ -149,15 +149,15 @@ export class TimixUploadFile implements INodeType {
 				// n8n's runtime supports `formData`, but the local types may not include it.
 				// Cast to avoid TS error while keeping correct runtime behavior.
 				const requestOptions: IHttpRequestOptions = {
-						method: 'POST',
-						baseURL: credentials.baseUrl as string,
-						url: '/api/v2/file',
-						formData: {
-							folder,
-							files: formFiles,
-						},
-						json: true,
-					} as IHttpRequestOptions;
+					method: 'POST',
+					baseURL: credentials.baseUrl as string,
+					url: '/api/v2/file',
+					formData: {
+						folder,
+						files: formFiles,
+					},
+					json: true,
+				} as IHttpRequestOptions;
 
 				const response = await this.helpers.httpRequestWithAuthentication.call(
 					this,
