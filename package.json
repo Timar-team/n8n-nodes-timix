@@ -16,10 +16,7 @@
 		"url": "https://github.com/Timar-team/n8n-nodes-timix.git"
 	},
 	"scripts": {
-		"build": "npm run build:core && npm run build:assets && npm run deploy",
-		"build:core": "n8n-node build",
-		"build:assets": "./scripts/build_assets.sh",
-		"deploy": "./scripts/deploy_custom.sh",
+		"build": "n8n-node build",
 		"build:watch": "tsc --watch",
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
@@ -34,10 +31,10 @@
 		"n8nNodesApiVersion": 1,
 		"strict": true,
 		"credentials": [
-			"dist/credentials/TimixHrApi.credentials.js"
+			"dist/credentials/TimixApi.credentials.ts"
 		],
 		"nodes": [
-			"dist/nodes/Timix/Timix.node.js"
+			"dist/nodes/Timix/Timix.node.ts"
 		]
 	},
 	"devDependencies": {
