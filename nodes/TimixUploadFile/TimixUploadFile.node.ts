@@ -91,7 +91,35 @@ export class TimixUploadFile implements INodeType {
 				description:
 					'Comma-separated binary property names to upload. Each property should contain binary data.',
 			},
+			{
+				displayName: 'Binary Properties (List)',
+				name: 'binaryPropertiesList',
+				type: 'fixedCollection',
+				default: {},
+				placeholder: 'Add Property',
+				typeOptions: {
+					multipleValues: true,
+				},
+				description:
+					'Add binary property names individually. These are merged with the comma-separated list.',
+				options: [
+					{
+						name: 'properties',
+						displayName: 'Properties',
+						values: [
+							{
+								displayName: 'Property',
+								name: 'property',
+								type: 'string',
+								default: '',
+								placeholder: 'file1',
+							},
+						],
+					},
+				],
+			},
 		],
+		usableAsTool: true,
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
@@ -106,11 +134,25 @@ export class TimixUploadFile implements INodeType {
 					itemIndex,
 					'data',
 				) as string;
+				const binaryPropertiesList = this.getNodeParameter(
+					'binaryPropertiesList',
+					itemIndex,
+					{},
+				) as { properties?: Array<{ property?: string }> };
 
-				const binaryProperties = binaryPropertiesRaw
+				const binaryPropertiesFromCsv = binaryPropertiesRaw
 					.split(',')
 					.map((value) => value.trim())
 					.filter((value) => value.length > 0);
+
+				const binaryPropertiesFromList =
+					binaryPropertiesList.properties
+						?.map((entry) => (entry.property ?? '').trim())
+						.filter((value) => value.length > 0) ?? [];
+
+				const binaryProperties = Array.from(
+					new Set([...binaryPropertiesFromCsv, ...binaryPropertiesFromList]),
+				);
 
 				if (binaryProperties.length === 0) {
 					throw new NodeOperationError(this.getNode(), 'No binary properties provided', {
