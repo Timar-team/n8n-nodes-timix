@@ -17,7 +17,10 @@ export class Timix implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Timix',
 		name: 'timix',
-		icon: { light: 'file:timix.svg', dark: 'file:timix.dark.svg' },
+		icon: {
+			light: 'file:../../../../../../../../n8n-nodes-timix/icons/timix.svg',
+			dark: 'file:../../../../../../../../n8n-nodes-timix/icons/timix.dark.svg',
+		},
 		group: ['input'],
 		version: 1,
 		description: 'Timix HR actions',
