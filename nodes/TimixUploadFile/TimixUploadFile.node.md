@@ -21,10 +21,8 @@ Binary data is required. Each input item can contain one or more binary properti
   `asset_fiches`, `asset_fich_items`, `educations`, `employee_relatives`, `candidates`.
 
 - `Binary Properties` (required)
-  Comma-separated list of binary property names to upload from each input item.
-  Default: `data`
-- `Binary Properties (List)` (optional)
-  Add binary property names one by one. This list is merged with the comma-separated field above.
+  Add binary property names one by one.
+  Default: one entry with `data`.
 
 ## Behavior
 

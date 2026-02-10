@@ -84,24 +84,22 @@ export class TimixUploadFile implements INodeType {
 			},
 			{
 				displayName: 'Binary Properties',
-				name: 'binaryProperties',
-				type: 'string',
-				default: 'data',
-				placeholder: 'data, file1, file2',
-				description:
-					'Comma-separated binary property names to upload. Each property should contain binary data.',
-			},
-			{
-				displayName: 'Binary Properties (List)',
 				name: 'binaryPropertiesList',
 				type: 'fixedCollection',
-				default: {},
+				required: true,
+				default: {
+					properties: [
+						{
+							property: 'data',
+						},
+					],
+				},
 				placeholder: 'Add Property',
 				typeOptions: {
 					multipleValues: true,
 				},
 				description:
-					'Add binary property names individually. These are merged with the comma-separated list.',
+					'Add binary property names individually. Each property should contain binary data.',
 				options: [
 					{
 						name: 'properties',
@@ -129,30 +127,18 @@ export class TimixUploadFile implements INodeType {
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 			try {
 				const folder = this.getNodeParameter('folder', itemIndex) as string;
-				const binaryPropertiesRaw = this.getNodeParameter(
-					'binaryProperties',
-					itemIndex,
-					'data',
-				) as string;
 				const binaryPropertiesList = this.getNodeParameter(
 					'binaryPropertiesList',
 					itemIndex,
 					{},
 				) as { properties?: Array<{ property?: string }> };
 
-				const binaryPropertiesFromCsv = binaryPropertiesRaw
-					.split(',')
-					.map((value) => value.trim())
-					.filter((value) => value.length > 0);
-
 				const binaryPropertiesFromList =
 					binaryPropertiesList.properties
 						?.map((entry) => (entry.property ?? '').trim())
 						.filter((value) => value.length > 0) ?? [];
 
-				const binaryProperties = Array.from(
-					new Set([...binaryPropertiesFromCsv, ...binaryPropertiesFromList]),
-				);
+				const binaryProperties = Array.from(new Set(binaryPropertiesFromList));
 
 				if (binaryProperties.length === 0) {
 					throw new NodeOperationError(this.getNode(), 'No binary properties provided', {
