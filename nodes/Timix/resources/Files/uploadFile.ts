@@ -73,9 +73,71 @@ export async function uploadFile(
 		requestOptions,
 	);
 
-	if (Array.isArray(response)) {
-		return response.map((file) => ({
-			json: file,
+	const extractUuids = (input: unknown): string[] => {
+		const uuids: string[] = [];
+		const pushUuid = (value: unknown) => {
+			if (typeof value !== 'string') return;
+			const trimmed = value.trim();
+			if (trimmed.length > 0) uuids.push(trimmed);
+		};
+
+		const collectFromObject = (obj: Record<string, unknown>) => {
+			pushUuid(obj.uuid);
+			pushUuid(obj.fileUuid);
+			pushUuid(obj.id);
+			if (obj.file && typeof obj.file === 'object') {
+				collectFromObject(obj.file as Record<string, unknown>);
+			}
+		};
+
+		if (Array.isArray(input)) {
+			for (const item of input) {
+				if (typeof item === 'string') {
+					pushUuid(item);
+				} else if (item && typeof item === 'object') {
+					collectFromObject(item as Record<string, unknown>);
+				}
+			}
+		} else if (typeof input === 'string') {
+			pushUuid(input);
+		} else if (input && typeof input === 'object') {
+			const obj = input as Record<string, unknown>;
+			if (Array.isArray(obj.data)) {
+				for (const item of obj.data) {
+					if (item && typeof item === 'object') {
+						collectFromObject(item as Record<string, unknown>);
+					} else {
+						pushUuid(item);
+					}
+				}
+			} else if (Array.isArray(obj.files)) {
+				for (const item of obj.files) {
+					if (item && typeof item === 'object') {
+						collectFromObject(item as Record<string, unknown>);
+					} else {
+						pushUuid(item);
+					}
+				}
+			} else if (Array.isArray(obj.items)) {
+				for (const item of obj.items) {
+					if (item && typeof item === 'object') {
+						collectFromObject(item as Record<string, unknown>);
+					} else {
+						pushUuid(item);
+					}
+				}
+			} else {
+				collectFromObject(obj);
+			}
+		}
+
+		return Array.from(new Set(uuids));
+	};
+
+	const uuids = extractUuids(response);
+	if (uuids.length > 0) {
+		return uuids.map((uuid) => ({
+			json: { uuid },
 			pairedItem: { item: itemIndex },
 		}));
 	}
