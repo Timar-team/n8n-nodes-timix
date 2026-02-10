@@ -18,8 +18,8 @@ export class Timix implements INodeType {
 		displayName: 'Timix',
 		name: 'timix',
 		icon: {
-			light: 'file:timix.svg',
-			dark: 'file:timix.dark.svg',
+			light: 'file:../../../../../../../../n8n-nodes-timix/icons/timix.svg',
+			dark: 'file:../../../../../../../../n8n-nodes-timix/icons/timix.dark.svg',
 		},
 		group: ['input'],
 		version: 1,

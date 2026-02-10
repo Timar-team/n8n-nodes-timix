@@ -1,7 +1,7 @@
 {
 	"displayName": "Timix",
 	"name": "timix",
-	"icon": "file:timix.svg",
+	"icon": "file:../../../../../../../../n8n-nodes-timix/icons/timix.svg",
 	"group": [
 		"input"
 	],
