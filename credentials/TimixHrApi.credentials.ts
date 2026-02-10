@@ -11,7 +11,10 @@ export class TimixHrApi implements ICredentialType {
 
 	displayName = 'Timix HR API';
 
-	icon: Icon = { light: 'file:../icons/timix.svg', dark: 'file:../icons/timix.dark.svg' };
+	icon: Icon = {
+		light: 'file:../../../../../../../../n8n-nodes-timix/icons/timix.svg',
+		dark: 'file:../../../../../../../../n8n-nodes-timix/icons/timix.dark.svg',
+	};
 
 	documentationUrl = '';
 
