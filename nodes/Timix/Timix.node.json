@@ -1,14 +1,14 @@
 {
-	"displayName": "Timix Upload File",
-	"name": "timixUploadFile",
+	"displayName": "Timix",
+	"name": "timix",
 	"icon": "file:timix.svg",
 	"group": [
 		"input"
 	],
 	"version": 1,
-	"description": "Upload files to Timix HR",
+	"description": "Timix HR actions",
 	"defaults": {
-		"name": "Upload File"
+		"name": "Timix"
 	},
 	"inputs": [
 		"main"

@@ -17,7 +17,7 @@
 	},
 	"scripts": {
 		"build": "n8n-node build",
-		"postbuild": "mkdir -p dist/icons dist/nodes/TimixUploadFile && cp -R icons/. dist/icons/ && cp icons/timix.svg dist/nodes/TimixUploadFile/timix.svg && cp icons/timix.dark.svg dist/nodes/TimixUploadFile/timix.dark.svg",
+		"postbuild": "mkdir -p dist/icons dist/nodes/Timix && cp -R icons/. dist/icons/ && cp icons/timix.svg dist/nodes/Timix/timix.svg && cp icons/timix.dark.svg dist/nodes/Timix/timix.dark.svg",
 		"build:watch": "tsc --watch",
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
@@ -35,7 +35,7 @@
 			"dist/credentials/TimixHrApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/TimixUploadFile/TimixUploadFile.node.js"
+			"dist/nodes/Timix/Timix.node.js"
 		]
 	},
 	"devDependencies": {
