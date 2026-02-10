@@ -13,7 +13,7 @@ export class TimixHrApi implements ICredentialType {
 
 	icon: Icon = {
 		light: 'file:timix.svg',
-		dark: 'file:../../../../../../../../n8n-nodes-timix/icons/timix.dark.svg',
+		dark: 'file:timix.dark.svg',
 	};
 
 	documentationUrl = '';
