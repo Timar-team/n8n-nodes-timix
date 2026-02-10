@@ -86,20 +86,13 @@ export class TimixUploadFile implements INodeType {
 				displayName: 'Binary Properties',
 				name: 'binaryPropertiesList',
 				type: 'fixedCollection',
-				required: true,
-				default: {
-					properties: [
-						{
-							property: 'data',
-						},
-					],
-				},
+				default: {},
 				placeholder: 'Add Property',
 				typeOptions: {
 					multipleValues: true,
 				},
 				description:
-					'Add binary property names individually. Each property should contain binary data.',
+					'Add binary property names individually. If empty, all binary properties from the input item are uploaded.',
 				options: [
 					{
 						name: 'properties',
@@ -138,10 +131,13 @@ export class TimixUploadFile implements INodeType {
 						?.map((entry) => (entry.property ?? '').trim())
 						.filter((value) => value.length > 0) ?? [];
 
-				const binaryProperties = Array.from(new Set(binaryPropertiesFromList));
+				const binaryProperties =
+					binaryPropertiesFromList.length > 0
+						? Array.from(new Set(binaryPropertiesFromList))
+						: Object.keys(items[itemIndex].binary ?? {});
 
 				if (binaryProperties.length === 0) {
-					throw new NodeOperationError(this.getNode(), 'No binary properties provided', {
+					throw new NodeOperationError(this.getNode(), 'No binary properties found', {
 						itemIndex,
 					});
 				}
@@ -184,7 +180,6 @@ export class TimixUploadFile implements INodeType {
 						folder,
 						files: formFiles,
 					},
-					json: true,
 				} as IHttpRequestOptions;
 
 				const response = await this.helpers.httpRequestWithAuthentication.call(

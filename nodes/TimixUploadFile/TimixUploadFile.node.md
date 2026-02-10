@@ -20,9 +20,9 @@ Binary data is required. Each input item can contain one or more binary properti
   `asset_tree_properties`, `responsibilities`, `responsibles`, `responsibility_reviews`, `modified_files`, `skill_test_scores`, `offers`,
   `asset_fiches`, `asset_fich_items`, `educations`, `employee_relatives`, `candidates`.
 
-- `Binary Properties` (required)
+- `Binary Properties`
   Add binary property names one by one.
-  Default: one entry with `data`.
+  If empty, the node uploads all binary properties from the input item.
 
 ## Behavior
 
