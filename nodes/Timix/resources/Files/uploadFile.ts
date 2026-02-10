@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, IHttpRequestOptions, INodeExecutionData } from 'n8n-workflow';
+import type { IExecuteFunctions, INodeExecutionData, IRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
 export async function uploadFile(
@@ -57,9 +57,7 @@ export async function uploadFile(
 	}
 
 	const credentials = await this.getCredentials('timixHrApi');
-	// n8n's runtime supports `formData`, but the local types may not include it.
-	// Cast to avoid TS error while keeping correct runtime behavior.
-	const requestOptions: IHttpRequestOptions = {
+	const requestOptions: IRequestOptions = {
 		method: 'POST',
 		baseURL: credentials.baseUrl as string,
 		url: '/api/v2/file',
@@ -67,9 +65,9 @@ export async function uploadFile(
 			folder,
 			files: formFiles,
 		},
-	} as IHttpRequestOptions;
+	};
 
-	const response = await this.helpers.httpRequestWithAuthentication.call(
+	const response = await this.helpers.requestWithAuthentication.call(
 		this,
 		'timixHrApi',
 		requestOptions,
