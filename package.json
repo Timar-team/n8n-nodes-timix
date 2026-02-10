@@ -16,8 +16,10 @@
 		"url": "https://github.com/Timar-team/n8n-nodes-timix.git"
 	},
 	"scripts": {
-		"build": "n8n-node build",
-		"postbuild": "mkdir -p dist/icons dist/nodes/Timix && cp -R icons/. dist/icons/ && cp icons/timix.svg dist/nodes/Timix/timix.svg && cp icons/timix.dark.svg dist/nodes/Timix/timix.dark.svg",
+		"build": "npm run build:core && npm run build:assets && npm run deploy",
+		"build:core": "n8n-node build",
+		"build:assets": "./scripts/build_assets.sh",
+		"deploy": "./scripts/deploy_custom.sh",
 		"build:watch": "tsc --watch",
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
