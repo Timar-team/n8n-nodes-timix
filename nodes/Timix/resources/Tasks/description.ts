@@ -29,6 +29,45 @@ export const taskOperations: INodeProperties[] = [
 
 export const taskFields: INodeProperties[] = [
 	{
+		displayName: 'Body Content Type',
+		name: 'bodyContentType',
+		type: 'options',
+		displayOptions: {
+			show: {
+				resource: ['tasks'],
+				operation: ['createTask'],
+			},
+		},
+		options: [
+			{
+				name: 'Form',
+				value: 'form',
+				description: 'Use form fields to build the request body',
+			},
+			{
+				name: 'JSON',
+				value: 'json',
+				description: 'Provide the raw JSON body',
+			},
+		],
+		default: 'form',
+	},
+	{
+		displayName: 'JSON Body',
+		name: 'jsonBody',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['tasks'],
+				operation: ['createTask'],
+				bodyContentType: ['json'],
+			},
+		},
+		default: '',
+		placeholder: '{ "title": "Task title", "priority": 2, "from": "...", "to": "..." }',
+		description: 'Raw JSON body sent to the API',
+	},
+	{
 		displayName: 'Title',
 		name: 'title',
 		type: 'string',
@@ -36,6 +75,7 @@ export const taskFields: INodeProperties[] = [
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
 		default: '',
@@ -50,6 +90,7 @@ export const taskFields: INodeProperties[] = [
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
 		typeOptions: {
@@ -66,6 +107,7 @@ export const taskFields: INodeProperties[] = [
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
 		options: [
@@ -98,6 +140,7 @@ export const taskFields: INodeProperties[] = [
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
 		default: '',
@@ -112,6 +155,7 @@ export const taskFields: INodeProperties[] = [
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
 		default: '',
@@ -126,6 +170,7 @@ export const taskFields: INodeProperties[] = [
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
 		default: false,
@@ -139,127 +184,289 @@ export const taskFields: INodeProperties[] = [
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
-		default: '',
-		placeholder: 'uuid-1, uuid-2',
-		description: 'Optional list of topic UUIDs (comma-separated or JSON)',
+		default: {},
+		placeholder: 'Add UUID',
+		typeOptions: {
+			multipleValues: true,
+		},
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'UUID',
+						name: 'uuid',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+		description: 'Optional list of topic UUIDs',
 	},
 	{
 		displayName: 'New Topics',
 		name: 'newTopics',
-		type: 'string',
+		type: 'fixedCollection',
 		displayOptions: {
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
-		default: '',
-		placeholder: 'Topic A, Topic B',
-		description: 'Optional list of new topic names (comma-separated or JSON)',
+		default: {},
+		placeholder: 'Add Topic',
+		typeOptions: {
+			multipleValues: true,
+		},
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'Topic',
+						name: 'topic',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+		description: 'Optional list of new topic names',
 	},
 	{
 		displayName: 'Group UUIDs',
 		name: 'groupUuids',
-		type: 'string',
+		type: 'fixedCollection',
 		displayOptions: {
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
-		default: '',
-		placeholder: 'uuid-1, uuid-2',
+		default: {},
+		placeholder: 'Add UUID',
+		typeOptions: {
+			multipleValues: true,
+		},
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'UUID',
+						name: 'uuid',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
 		description:
 			'Optional group UUIDs. At least one of Group, Employee, Company, Division, Department must be provided.',
 	},
 	{
 		displayName: 'Employee UUIDs',
 		name: 'employeeUuids',
-		type: 'string',
+		type: 'fixedCollection',
 		displayOptions: {
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
-		default: '',
-		placeholder: 'uuid-1, uuid-2',
+		default: {},
+		placeholder: 'Add UUID',
+		typeOptions: {
+			multipleValues: true,
+		},
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'UUID',
+						name: 'uuid',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
 		description:
 			'Optional employee UUIDs. At least one of Group, Employee, Company, Division, Department must be provided.',
 	},
 	{
 		displayName: 'Company UUIDs',
 		name: 'companyUuids',
-		type: 'string',
+		type: 'fixedCollection',
 		displayOptions: {
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
-		default: '',
-		placeholder: 'uuid-1, uuid-2',
+		default: {},
+		placeholder: 'Add UUID',
+		typeOptions: {
+			multipleValues: true,
+		},
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'UUID',
+						name: 'uuid',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
 		description:
 			'Optional company UUIDs. At least one of Group, Employee, Company, Division, Department must be provided.',
 	},
 	{
 		displayName: 'Division UUIDs',
 		name: 'divisionUuids',
-		type: 'string',
+		type: 'fixedCollection',
 		displayOptions: {
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
-		default: '',
-		placeholder: 'uuid-1, uuid-2',
+		default: {},
+		placeholder: 'Add UUID',
+		typeOptions: {
+			multipleValues: true,
+		},
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'UUID',
+						name: 'uuid',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
 		description:
 			'Optional division UUIDs. At least one of Group, Employee, Company, Division, Department must be provided.',
 	},
 	{
 		displayName: 'Department UUIDs',
 		name: 'departmentUuids',
-		type: 'string',
+		type: 'fixedCollection',
 		displayOptions: {
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
-		default: '',
-		placeholder: 'uuid-1, uuid-2',
+		default: {},
+		placeholder: 'Add UUID',
+		typeOptions: {
+			multipleValues: true,
+		},
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'UUID',
+						name: 'uuid',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
 		description:
 			'Optional department UUIDs. At least one of Group, Employee, Company, Division, Department must be provided.',
 	},
 	{
 		displayName: 'Job UUIDs',
 		name: 'jobUuids',
-		type: 'string',
+		type: 'fixedCollection',
 		displayOptions: {
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
-		default: '',
-		placeholder: 'uuid-1, uuid-2',
+		default: {},
+		placeholder: 'Add UUID',
+		typeOptions: {
+			multipleValues: true,
+		},
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'UUID',
+						name: 'uuid',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
 		description: 'Optional job UUIDs',
 	},
 	{
 		displayName: 'File UUIDs',
 		name: 'fileUuids',
-		type: 'string',
+		type: 'fixedCollection',
 		displayOptions: {
 			show: {
 				resource: ['tasks'],
 				operation: ['createTask'],
+				bodyContentType: ['form'],
 			},
 		},
-		default: '',
-		placeholder: 'uuid-1, uuid-2',
+		default: {},
+		placeholder: 'Add UUID',
+		typeOptions: {
+			multipleValues: true,
+		},
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'UUID',
+						name: 'uuid',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
 		description: 'Optional file UUIDs',
 	},
 ];
