@@ -78,7 +78,20 @@ export async function uploadFile(
 		const pushUuid = (value: unknown) => {
 			if (typeof value !== 'string') return;
 			const trimmed = value.trim();
-			if (trimmed.length > 0) uuids.push(trimmed);
+			if (trimmed.length === 0) return;
+			const looksJson =
+				(trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+				(trimmed.startsWith('[') && trimmed.endsWith(']'));
+			if (looksJson) {
+				try {
+					const parsed = JSON.parse(trimmed);
+					collect(parsed);
+					return;
+				} catch {
+					// fall through to push raw string
+				}
+			}
+			uuids.push(trimmed);
 		};
 
 		const collectFromObject = (obj: Record<string, unknown>) => {
@@ -90,45 +103,60 @@ export async function uploadFile(
 			}
 		};
 
-		if (Array.isArray(input)) {
-			for (const item of input) {
-				if (typeof item === 'string') {
-					pushUuid(item);
-				} else if (item && typeof item === 'object') {
-					collectFromObject(item as Record<string, unknown>);
+		const collect = (value: unknown) => {
+			if (Array.isArray(value)) {
+				for (const item of value) {
+					if (typeof item === 'string') {
+						pushUuid(item);
+					} else if (item && typeof item === 'object') {
+						collectFromObject(item as Record<string, unknown>);
+					}
+				}
+				return;
+			}
+			if (typeof value === 'string') {
+				pushUuid(value);
+				return;
+			}
+			if (value && typeof value === 'object') {
+				const obj = value as Record<string, unknown>;
+				if (Array.isArray(obj.data)) {
+					for (const item of obj.data) {
+						if (item && typeof item === 'object') {
+							collectFromObject(item as Record<string, unknown>);
+						} else {
+							pushUuid(item);
+						}
+					}
+				} else if (Array.isArray(obj.files)) {
+					for (const item of obj.files) {
+						if (item && typeof item === 'object') {
+							collectFromObject(item as Record<string, unknown>);
+						} else {
+							pushUuid(item);
+						}
+					}
+				} else if (Array.isArray(obj.items)) {
+					for (const item of obj.items) {
+						if (item && typeof item === 'object') {
+							collectFromObject(item as Record<string, unknown>);
+						} else {
+							pushUuid(item);
+						}
+					}
+				} else {
+					collectFromObject(obj);
 				}
 			}
+		};
+
+		if (Array.isArray(input)) {
+			collect(input);
 		} else if (typeof input === 'string') {
-			pushUuid(input);
+			collect(input);
 		} else if (input && typeof input === 'object') {
 			const obj = input as Record<string, unknown>;
-			if (Array.isArray(obj.data)) {
-				for (const item of obj.data) {
-					if (item && typeof item === 'object') {
-						collectFromObject(item as Record<string, unknown>);
-					} else {
-						pushUuid(item);
-					}
-				}
-			} else if (Array.isArray(obj.files)) {
-				for (const item of obj.files) {
-					if (item && typeof item === 'object') {
-						collectFromObject(item as Record<string, unknown>);
-					} else {
-						pushUuid(item);
-					}
-				}
-			} else if (Array.isArray(obj.items)) {
-				for (const item of obj.items) {
-					if (item && typeof item === 'object') {
-						collectFromObject(item as Record<string, unknown>);
-					} else {
-						pushUuid(item);
-					}
-				}
-			} else {
-				collectFromObject(obj);
-			}
+			collect(obj);
 		}
 
 		return Array.from(new Set(uuids));
@@ -136,10 +164,12 @@ export async function uploadFile(
 
 	const uuids = extractUuids(response);
 	if (uuids.length > 0) {
-		return uuids.map((uuid) => ({
-			json: { uuid },
-			pairedItem: { item: itemIndex },
-		}));
+		return [
+			{
+				json: { uuids },
+				pairedItem: { item: itemIndex },
+			},
+		];
 	}
 
 	return [{ json: response, pairedItem: { item: itemIndex } }];
