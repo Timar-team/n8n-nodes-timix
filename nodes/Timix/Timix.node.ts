@@ -5,6 +5,7 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 	INodePropertyOptions,
+	IRequestOptions,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
@@ -27,7 +28,7 @@ export class Timix implements INodeType {
 						: undefined;
 				const search = typeof searchValue === 'string' ? searchValue.trim() : '';
 
-				const requestOptions = {
+				const requestOptions: IRequestOptions = {
 					method: 'GET',
 					baseURL: credentials.baseUrl as string,
 					url: '/api/v2/employees/action-model',
