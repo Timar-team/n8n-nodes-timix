@@ -24,6 +24,7 @@ export const fileOperations: INodeProperties[] = [
 ];
 
 export const fileFields: INodeProperties[] = [
+	// Folder list is sourced from Timix HR file buckets.
 	{
 		displayName: 'Folder',
 		name: 'folder',

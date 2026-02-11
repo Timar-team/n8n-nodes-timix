@@ -5,6 +5,7 @@ export async function uploadFile(
 	this: IExecuteFunctions,
 	itemIndex: number,
 ): Promise<INodeExecutionData[]> {
+	// We rely on binary data attached to the incoming item.
 	const items = this.getInputData();
 	const folder = this.getNodeParameter('folder', itemIndex) as string;
 	const binaryPropertiesList = this.getNodeParameter(
@@ -13,11 +14,13 @@ export async function uploadFile(
 		{},
 	) as { properties?: Array<{ property?: string }> };
 
+	// Normalize user-provided binary property names.
 	const binaryPropertiesFromList =
 		binaryPropertiesList.properties
 			?.map((entry) => (entry.property ?? '').trim())
 			.filter((value) => value.length > 0) ?? [];
 
+	// If no explicit properties are provided, upload all binary fields on the item.
 	const binaryProperties =
 		binaryPropertiesFromList.length > 0
 			? Array.from(new Set(binaryPropertiesFromList))
@@ -29,12 +32,14 @@ export async function uploadFile(
 		});
 	}
 
+	// Backend limit: max 10 files per request.
 	if (binaryProperties.length > 10) {
 		throw new NodeOperationError(this.getNode(), 'Maximum 10 files allowed per request', {
 			itemIndex,
 		});
 	}
 
+	// Build multipart form data with the binary buffers.
 	const formFiles = [];
 	for (const propertyName of binaryProperties) {
 		const binaryData = items[itemIndex].binary?.[propertyName];
@@ -56,6 +61,7 @@ export async function uploadFile(
 		});
 	}
 
+	// Use the shared credential to build a single POST request.
 	const credentials = await this.getCredentials('timixHrApi');
 	const requestOptions: IRequestOptions = {
 		method: 'POST',
@@ -73,6 +79,7 @@ export async function uploadFile(
 		requestOptions,
 	);
 
+	// Response shapes vary; extract UUIDs defensively for convenience.
 	const extractUuids = (input: unknown): string[] => {
 		const uuids: string[] = [];
 		const pushUuid = (value: unknown) => {
@@ -164,6 +171,7 @@ export async function uploadFile(
 
 	const uuids = extractUuids(response);
 	if (uuids.length > 0) {
+		// Normalize to a predictable output when UUIDs are present.
 		return [
 			{
 				json: { uuids },

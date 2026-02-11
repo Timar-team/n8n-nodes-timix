@@ -19,6 +19,7 @@ export class TimixHrApi implements ICredentialType {
 	documentationUrl = '';
 
 	properties: INodeProperties[] = [
+		// Base URL for the tenant, without trailing slash.
 		{
 			displayName: 'Base URL',
 			name: 'baseUrl',
@@ -27,6 +28,7 @@ export class TimixHrApi implements ICredentialType {
 			placeholder: 'https://company.timix.org',
 			required: true,
 		},
+		// Access token provided by Timix HR; stored as a password in n8n.
 		{
 			displayName: 'Access Token',
 			name: 'accessToken',
@@ -37,6 +39,7 @@ export class TimixHrApi implements ICredentialType {
 		},
 	];
 
+	// Injects the bearer token on every request.
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {
@@ -46,6 +49,7 @@ export class TimixHrApi implements ICredentialType {
 		},
 	};
 
+	// Simple health endpoint to validate credentials in the UI.
 	test: ICredentialTestRequest = {
 		request: {
 			baseURL: '={{$credentials?.baseUrl}}',
