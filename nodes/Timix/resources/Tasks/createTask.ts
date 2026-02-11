@@ -108,41 +108,6 @@ export async function createTask(
 		return out;
 	};
 
-	const normalizeTopicList = (value: unknown): string[] => {
-		if (value && typeof value === 'object' && !Array.isArray(value)) {
-			const fromCollection = extractCollectionValues(value, 'topic');
-			if (fromCollection.length > 0) return fromCollection;
-		}
-		if (Array.isArray(value)) {
-			return value
-				.map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
-				.filter((entry) => entry.length > 0);
-		}
-		if (typeof value === 'string') {
-			const trimmed = value.trim();
-			if (trimmed.length === 0) return [];
-			const looksJson =
-				(trimmed.startsWith('[') && trimmed.endsWith(']')) ||
-				(trimmed.startsWith('{') && trimmed.endsWith('}'));
-			if (looksJson) {
-				try {
-					const parsed = JSON.parse(trimmed);
-					return normalizeTopicList(parsed);
-				} catch {
-					return normalizeListFromString(trimmed);
-				}
-			}
-			return normalizeListFromString(trimmed);
-		}
-		if (value && typeof value === 'object') {
-			const obj = value as Record<string, unknown>;
-			if (Array.isArray(obj.data)) {
-				return normalizeTopicList(obj.data);
-			}
-		}
-		return [];
-	};
-
 	let payload: Record<string, unknown> = {};
 	let assignmentScope: {
 		groupUuids: string[];
@@ -172,6 +137,9 @@ export async function createTask(
 			payload = jsonBody as Record<string, unknown>;
 		}
 
+		delete (payload as Record<string, unknown>).topicUuids;
+		delete (payload as Record<string, unknown>).newTopics;
+
 		assignmentScope = {
 			groupUuids: normalizeUuidList(payload.groupUuids),
 			employeeUuids: normalizeUuidList(payload.employeeUuids),
@@ -191,40 +159,14 @@ export async function createTask(
 			false,
 		) as boolean;
 
-		const topicUuidsInput = this.getNodeParameter('topicUuids', itemIndex, {});
-		const newTopicsInput = this.getNodeParameter('newTopics', itemIndex, {});
-		const groupUuidsInput = this.getNodeParameter('groupUuids', itemIndex, {});
-		const employeeUuidsInput = this.getNodeParameter('employeeUuids', itemIndex, {});
-		const companyUuidsInput = this.getNodeParameter('companyUuids', itemIndex, {});
-		const divisionUuidsInput = this.getNodeParameter('divisionUuids', itemIndex, {});
-		const departmentUuidsInput = this.getNodeParameter(
-			'departmentUuids',
+		const employeeUuidsInput = this.getNodeParameter(
+			'employeeUuids',
 			itemIndex,
-			{},
+			[],
 		);
-		const jobUuidsInput = this.getNodeParameter('jobUuids', itemIndex, {});
 		const fileUuidsInput = this.getNodeParameter('fileUuids', itemIndex, {});
 
-		const topicUuids = normalizeUuidList(
-			extractCollectionValues(topicUuidsInput, 'uuid'),
-		);
-		const newTopics = normalizeTopicList(newTopicsInput);
-		const groupUuids = normalizeUuidList(
-			extractCollectionValues(groupUuidsInput, 'uuid'),
-		);
-		const employeeUuids = normalizeUuidList(
-			extractCollectionValues(employeeUuidsInput, 'uuid'),
-		);
-		const companyUuids = normalizeUuidList(
-			extractCollectionValues(companyUuidsInput, 'uuid'),
-		);
-		const divisionUuids = normalizeUuidList(
-			extractCollectionValues(divisionUuidsInput, 'uuid'),
-		);
-		const departmentUuids = normalizeUuidList(
-			extractCollectionValues(departmentUuidsInput, 'uuid'),
-		);
-		const jobUuids = normalizeUuidList(extractCollectionValues(jobUuidsInput, 'uuid'));
+		const employeeUuids = normalizeUuidList(employeeUuidsInput);
 		const fileUuids = normalizeUuidList(extractCollectionValues(fileUuidsInput, 'uuid'));
 
 		payload = {
@@ -238,40 +180,19 @@ export async function createTask(
 		if (description.trim().length > 0) {
 			payload.description = description.trim();
 		}
-		if (topicUuids.length > 0) {
-			payload.topicUuids = topicUuids;
-		}
-		if (newTopics.length > 0) {
-			payload.newTopics = newTopics;
-		}
-		if (groupUuids.length > 0) {
-			payload.groupUuids = groupUuids;
-		}
 		if (employeeUuids.length > 0) {
 			payload.employeeUuids = employeeUuids;
-		}
-		if (companyUuids.length > 0) {
-			payload.companyUuids = companyUuids;
-		}
-		if (divisionUuids.length > 0) {
-			payload.divisionUuids = divisionUuids;
-		}
-		if (departmentUuids.length > 0) {
-			payload.departmentUuids = departmentUuids;
-		}
-		if (jobUuids.length > 0) {
-			payload.jobUuids = jobUuids;
 		}
 		if (fileUuids.length > 0) {
 			payload.fileUuids = fileUuids;
 		}
 
 		assignmentScope = {
-			groupUuids,
 			employeeUuids,
-			companyUuids,
-			divisionUuids,
-			departmentUuids,
+			groupUuids: [],
+			companyUuids: [],
+			divisionUuids: [],
+			departmentUuids: [],
 		};
 	}
 

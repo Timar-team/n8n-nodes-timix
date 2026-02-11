@@ -14,14 +14,9 @@ export const fileOperations: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Upload File',
+				name: 'Upload',
 				value: 'uploadFile',
 				description: 'Upload a file',
-			},
-			{
-				name: 'Delete File',
-				value: 'deleteFile',
-				description: 'Delete a file',
 			},
 		],
 		default: 'uploadFile',

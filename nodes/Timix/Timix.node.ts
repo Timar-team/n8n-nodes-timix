@@ -1,19 +1,80 @@
 import type {
 	IExecuteFunctions,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	INodePropertyOptions,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import { fileFields, fileOperations } from './resources/Files/description';
 import { uploadFile } from './resources/Files/uploadFile';
-import { deleteFile } from './resources/Files/deleteFile';
 import { taskFields, taskOperations } from './resources/Tasks/description';
 import { createTask } from './resources/Tasks/createTask';
 import { getTasks } from './resources/Tasks/getTasks';
 
 export class Timix implements INodeType {
+	methods = {
+		loadOptions: {
+			async getEmployees(
+				this: ILoadOptionsFunctions,
+			): Promise<INodePropertyOptions[]> {
+				const credentials = await this.getCredentials('timixHrApi');
+				const searchValue =
+					typeof (this as any).getCurrentNodeParameter === 'function'
+						? ((this as any).getCurrentNodeParameter() as string | undefined)
+						: undefined;
+				const search = typeof searchValue === 'string' ? searchValue.trim() : '';
+
+				const requestOptions = {
+					method: 'GET',
+					baseURL: credentials.baseUrl as string,
+					url: '/api/v2/employees/action-model',
+					qs: {
+						search,
+						offset: 0,
+						limit: 20,
+						isBlocked: false,
+						type: 'employee',
+						sortAs: 'ASC',
+						sortBy: 'id',
+						excel: false,
+						excludeMe: true,
+					},
+					json: true,
+				};
+
+				const response = await this.helpers.requestWithAuthentication.call(
+					this,
+					'timixHrApi',
+					requestOptions,
+				);
+
+				const payload = Array.isArray(response?.payload)
+					? response.payload
+					: Array.isArray(response?.data)
+						? response.data
+						: Array.isArray(response)
+							? response
+							: [];
+
+				return payload
+					.filter((item: any) => item && typeof item === 'object')
+					.map((item: any) => {
+						const nameParts = [item.name, item.surname]
+							.filter((part: unknown) => typeof part === 'string' && part.trim())
+							.join(' ');
+						const label = nameParts.length > 0 ? nameParts : item.uuid ?? 'Employee';
+						return {
+							name: label,
+							value: item.uuid ?? item.id ?? label,
+						};
+					});
+			},
+		},
+	};
+
 	description: INodeTypeDescription = {
 		displayName: 'Timix',
 		name: 'timix',
@@ -77,11 +138,6 @@ export class Timix implements INodeType {
 					continue;
 				}
 
-				if (resource === 'files' && operation === 'deleteFile') {
-					const deleteResults = await deleteFile.call(this, itemIndex);
-					results.push(...deleteResults);
-					continue;
-				}
 
 				if (resource === 'tasks' && operation === 'createTask') {
 					const createResults = await createTask.call(this, itemIndex);
