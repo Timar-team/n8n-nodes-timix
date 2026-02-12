@@ -107,11 +107,7 @@ export async function createTask(
 	itemIndex: number,
 ): Promise<INodeExecutionData[]> {
 	// The node supports both a JSON body and form-driven inputs.
-	const bodyContentType = this.getNodeParameter(
-		'bodyContentType',
-		itemIndex,
-		'form',
-	) as string;
+	const bodyContentType = this.getNodeParameter('bodyContentType', itemIndex, 'form') as string;
 
 	let payload: Record<string, unknown> = {};
 	let assignmentScope: {
@@ -162,38 +158,20 @@ export async function createTask(
 		const priority = this.getNodeParameter('priority', itemIndex) as number;
 		const from = this.getNodeParameter('from', itemIndex) as string;
 		const to = this.getNodeParameter('to', itemIndex) as string;
-		const singleSubmission = this.getNodeParameter(
-			'singleSubmission',
-			itemIndex,
-			false,
-		) as boolean;
+		const singleSubmission = this.getNodeParameter('singleSubmission', itemIndex, false) as boolean;
 
-		const employeeUuidsInput = this.getNodeParameter(
-			'employeeUuids',
-			itemIndex,
-			[],
-		);
+		const employeeUuidsInput = this.getNodeParameter('employeeUuids', itemIndex, []);
 		const groupUuidsInput = this.getNodeParameter('groupUuids', itemIndex, {});
 		const companyUuidsInput = this.getNodeParameter('companyUuids', itemIndex, {});
 		const divisionUuidsInput = this.getNodeParameter('divisionUuids', itemIndex, {});
-		const departmentUuidsInput = this.getNodeParameter(
-			'departmentUuids',
-			itemIndex,
-			{},
-		);
+		const departmentUuidsInput = this.getNodeParameter('departmentUuids', itemIndex, {});
 		const fileUuidsInput = this.getNodeParameter('fileUuids', itemIndex, {});
 
 		// Normalize every collection into a de-duplicated UUID list.
-		const employeeUuids = normalizeUuidList(
-			extractCollectionValues(employeeUuidsInput, 'uuid'),
-		);
+		const employeeUuids = normalizeUuidList(extractCollectionValues(employeeUuidsInput, 'uuid'));
 		const groupUuids = normalizeUuidList(extractCollectionValues(groupUuidsInput, 'uuid'));
-		const companyUuids = normalizeUuidList(
-			extractCollectionValues(companyUuidsInput, 'uuid'),
-		);
-		const divisionUuids = normalizeUuidList(
-			extractCollectionValues(divisionUuidsInput, 'uuid'),
-		);
+		const companyUuids = normalizeUuidList(extractCollectionValues(companyUuidsInput, 'uuid'));
+		const divisionUuids = normalizeUuidList(extractCollectionValues(divisionUuidsInput, 'uuid'));
 		const departmentUuids = normalizeUuidList(
 			extractCollectionValues(departmentUuidsInput, 'uuid'),
 		);
@@ -261,7 +239,7 @@ export async function createTask(
 	const requestOptions: IRequestOptions = {
 		method: 'POST',
 		baseURL: credentials.baseUrl as string,
-		url: '/api/v2/task',
+		url: '/api/v2/tasks',
 		body: payload,
 		json: true,
 	};
