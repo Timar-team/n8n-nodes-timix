@@ -15,6 +15,11 @@ This node uses the **Timix HR API** credential (`timixHrApi`). It must include a
   - Create Task (placeholder)
   - Get Tasks (placeholder)
 
+## Global Parameters
+
+- `Dynamic Credential` (optional)
+  Provide a token manually or via expression to override the credential token for requests.
+
 ## Files > Upload File
 
 Upload one or more binary files to the Timix HR API and return the created file records.
@@ -36,8 +41,6 @@ Binary data is required. Each input item can contain one or more binary properti
 - `Binary Properties`
   Add binary property names one by one.
   If empty, the node uploads all binary properties from the input item.
-- `Access Token Override` (optional)
-  Provide a token manually or via expression to override the credential token for this request.
 
 ### Behavior
 
@@ -57,6 +60,3 @@ Binary data is required. Each input item can contain one or more binary properti
 ## Tasks > Create Task
 
 ### Parameters
-
-- `Access Token Override` (optional)
-  Provide a token manually or via expression to override the credential token for this request.

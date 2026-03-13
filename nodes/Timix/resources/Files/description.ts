@@ -76,22 +76,4 @@ export const fileFields: INodeProperties[] = [
 			},
 		],
 	},
-	{
-		displayName: 'Access Token Override',
-		name: 'accessTokenOverride',
-		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['files'],
-				operation: ['uploadFile'],
-			},
-		},
-		default: '',
-		placeholder: '={{$json.accessToken}}',
-		description:
-			'Optional. Provide a token manually or via expression to override the credential token for this request.',
-		typeOptions: {
-			password: true,
-		},
-	},
 ];

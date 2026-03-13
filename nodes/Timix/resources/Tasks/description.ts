@@ -237,24 +237,6 @@ export const taskFields: INodeProperties[] = [
 		description: 'Group UUIDs',
 	},
 	{
-		displayName: 'Access Token Override',
-		name: 'accessTokenOverride',
-		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['tasks'],
-				operation: ['createTask'],
-			},
-		},
-		default: '',
-		placeholder: '={{$json.accessToken}}',
-		description:
-			'Optional. Provide a token manually or via expression to override the credential token for this request.',
-		typeOptions: {
-			password: true,
-		},
-	},
-	{
 		displayName: 'Company UUIDs',
 		name: 'companyUuids',
 		type: 'fixedCollection',
