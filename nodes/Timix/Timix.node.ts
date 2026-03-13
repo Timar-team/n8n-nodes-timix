@@ -43,9 +43,6 @@ export class Timix implements INodeType {
 				placeholder: '={{$json.accessToken}}',
 				description:
 					'Optional. Provide a token manually or via expression to override the credential token for this request.',
-				typeOptions: {
-					password: true,
-				},
 			},
 			{
 				displayName: 'Resource',
