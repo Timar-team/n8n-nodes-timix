@@ -1,4 +1,9 @@
-import type { IExecuteFunctions, INodeExecutionData, IRequestOptions } from 'n8n-workflow';
+import type {
+	IDataObject,
+	IExecuteFunctions,
+	INodeExecutionData,
+	IRequestOptions,
+} from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
 export async function uploadFile(
@@ -194,5 +199,5 @@ export async function uploadFile(
 		];
 	}
 
-	return [{ json: response, pairedItem: { item: itemIndex } }];
+	return [{ json: response as IDataObject, pairedItem: { item: itemIndex } }];
 }
