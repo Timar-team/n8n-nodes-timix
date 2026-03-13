@@ -36,6 +36,8 @@ Binary data is required. Each input item can contain one or more binary properti
 - `Binary Properties`
   Add binary property names one by one.
   If empty, the node uploads all binary properties from the input item.
+- `Access Token Override` (optional)
+  Provide a token manually or via expression to override the credential token for this request.
 
 ### Behavior
 
@@ -51,3 +53,10 @@ Binary data is required. Each input item can contain one or more binary properti
 - **Maximum 10 files allowed per request** if more than 10 binary properties are provided.
 - **Binary property "X" is missing** if a referenced binary property is not present.
 - API errors are returned as standard n8n node errors.
+
+## Tasks > Create Task
+
+### Parameters
+
+- `Access Token Override` (optional)
+  Provide a token manually or via expression to override the credential token for this request.

@@ -236,6 +236,12 @@ export async function createTask(
 
 	// Use the shared credential to build a single POST request.
 	const credentials = await this.getCredentials('timixHrApi');
+	const accessTokenOverride = this.getNodeParameter(
+		'accessTokenOverride',
+		itemIndex,
+		'',
+	) as string;
+	const resolvedToken = accessTokenOverride?.toString().trim();
 	const requestOptions: IRequestOptions = {
 		method: 'POST',
 		baseURL: credentials.baseUrl as string,
@@ -243,6 +249,14 @@ export async function createTask(
 		body: payload,
 		json: true,
 	};
+
+	if (resolvedToken) {
+		requestOptions.headers = {
+			Authorization: `Bearer ${resolvedToken}`,
+		};
+		const response = await this.helpers.request.call(this, requestOptions);
+		return [{ json: response, pairedItem: { item: itemIndex } }];
+	}
 
 	const response = await this.helpers.requestWithAuthentication.call(
 		this,

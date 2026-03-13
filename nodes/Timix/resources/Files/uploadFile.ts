@@ -63,6 +63,12 @@ export async function uploadFile(
 
 	// Use the shared credential to build a single POST request.
 	const credentials = await this.getCredentials('timixHrApi');
+	const accessTokenOverride = this.getNodeParameter(
+		'accessTokenOverride',
+		itemIndex,
+		'',
+	) as string;
+	const resolvedToken = accessTokenOverride?.toString().trim();
 	const requestOptions: IRequestOptions = {
 		method: 'POST',
 		baseURL: credentials.baseUrl as string,
@@ -73,11 +79,19 @@ export async function uploadFile(
 		},
 	};
 
-	const response = await this.helpers.requestWithAuthentication.call(
-		this,
-		'timixHrApi',
-		requestOptions,
-	);
+	let response: unknown;
+	if (resolvedToken) {
+		requestOptions.headers = {
+			Authorization: `Bearer ${resolvedToken}`,
+		};
+		response = await this.helpers.request.call(this, requestOptions);
+	} else {
+		response = await this.helpers.requestWithAuthentication.call(
+			this,
+			'timixHrApi',
+			requestOptions,
+		);
+	}
 
 	// Response shapes vary; extract UUIDs defensively for convenience.
 	const extractUuids = (input: unknown): string[] => {
