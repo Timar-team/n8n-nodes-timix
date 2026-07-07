@@ -1,6 +1,6 @@
 # Timix
 
-Timix HR actions grouped by Files and Tasks.
+Timix HR actions grouped by Chat, Files, and Tasks.
 
 ## Credentials
 
@@ -8,21 +8,93 @@ This node uses the **Timix HR API** credential (`timixHrApi`). It must include a
 
 ## Resources and operations
 
+- **Chat**
+  - Search Targets
+  - Resolve Target
+  - Send Message
 - **Files**
   - Upload File
-  - Delete File (placeholder)
 - **Tasks**
-  - Create Task (placeholder)
-  - Get Tasks (placeholder)
+  - Create Task
 
 ## Global Parameters
 
 - `Dynamic Credential` (optional)
   Provide a token manually or via expression to override the credential token for requests.
 
+## Recommended Chat Flow
+
+1. `Chat > Search Targets`
+2. `Chat > Resolve Target`
+3. `Files > Upload File` with `Folder=chat_messages` when a message has attachments
+4. `Chat > Send Message`
+
+The node now follows the gateway-backed flow described by the API:
+
+- `GET /api/v2/chat/targets/search`
+- `POST /api/v2/chat/targets/resolve`
+- `POST /api/v2/file`
+- `POST /api/v2/chat/conversations/:uuid/messages`
+
+## Chat > Search Targets
+
+Search available employees and structure chat targets.
+
+### Parameters
+
+- `Search` (required)
+- `Limit`
+- `Offset`
+
+### Behavior
+
+- Sends `GET /api/v2/chat/targets/search`
+- Returns one n8n item per match
+
+## Chat > Resolve Target
+
+Resolve a target into a canonical or direct conversation.
+
+### Parameters
+
+- `Target Type` (required)
+- `Target UUID` (required)
+
+### Behavior
+
+- Sends `POST /api/v2/chat/targets/resolve`
+- Use the root-level `uuid` returned by Search Targets
+
+## Chat > Send Message
+
+Send a text, file, or audio message to a resolved conversation.
+
+### Parameters
+
+- `Conversation UUID` (required)
+- `Message Type` (required)
+- `Content`
+- `File UUIDs`
+- `Reply To Message UUID`
+- `Thread Root Message UUID`
+- `Scheduled At`
+- `Expires At`
+- `Mention All`
+- `Out Box Pattern`
+- `Mention Employee UUIDs`
+- `Mention Division UUIDs`
+- `Mention Department UUIDs`
+- `Mention Group UUIDs`
+- `Mention Job UUIDs`
+
+### Validation
+
+- Provide text content or at least one file UUID
+- `File` and `Audio` message types require uploaded file UUIDs
+
 ## Files > Upload File
 
-Upload one or more binary files to the Timix HR API and return the created file records.
+Upload one or more binary files to the Timix HR API and return the created file UUIDs.
 
 ### Inputs
 
@@ -31,32 +103,23 @@ Binary data is required. Each input item can contain one or more binary properti
 ### Parameters
 
 - `Folder` (required)
-  Target folder on the Timix server. Options are:
-  `skills`, `shifts`, `currencies`, `companies`, `departments`, `jobs`, `groups`, `groupsandemployees`, `employees`, `divisions`,
-  `asset_trees`, `accesses`, `notes`, `dayoffs`, `education_levels`, `vacancies`, `transfers`, `skill_tests`, `trainings`, `tasks`,
-  `task_assignments`, `task_topics`, `task_comments`, `assignment_files`, `documents`, `document_types`, `document_files`, `assets`,
-  `asset_tree_properties`, `responsibilities`, `responsibles`, `responsibility_reviews`, `modified_files`, `skill_test_scores`, `offers`,
-  `asset_fiches`, `asset_fich_items`, `educations`, `employee_relatives`, `candidates`.
-
+  Target folder on the Timix server. Includes `chat_messages` for chat attachments.
 - `Binary Properties`
   Add binary property names one by one.
   If empty, the node uploads all binary properties from the input item.
 
 ### Behavior
 
-- Sends a `POST /api/v2/file` request with multipart form data.
-- Uploads up to **10 files** per input item.
-- For each input item:
-  - If the API response is an array, the node outputs **one item per file**.
-  - If the API response is an object, the node outputs **a single item**.
+- Sends a `POST /api/v2/file` request with multipart form data
+- Uploads up to **10 files** per input item
+- Returns `uuids`, `fileUuids`, and raw `response` when file UUIDs can be extracted
 
 ### Errors
 
-- **No binary properties provided** if the list is empty after trimming.
-- **Maximum 10 files allowed per request** if more than 10 binary properties are provided.
-- **Binary property "X" is missing** if a referenced binary property is not present.
-- API errors are returned as standard n8n node errors.
+- **No binary properties found**
+- **Maximum 10 files allowed per request**
+- **Binary property "X" is missing**
 
 ## Tasks > Create Task
 
-### Parameters
+Creates a Timix task using either form inputs or a raw JSON body.

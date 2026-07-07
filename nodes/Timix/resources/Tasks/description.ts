@@ -8,13 +8,14 @@ export const taskOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 			},
 		},
 		options: [
 			{
 				name: 'Create Task',
 				value: 'createTask',
+				action: 'Create a task',
 				description: 'Create a task',
 			},
 		],
@@ -30,7 +31,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 			},
 		},
@@ -54,7 +55,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'json',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['json'],
 			},
@@ -69,7 +70,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -84,7 +85,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -101,7 +102,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -134,7 +135,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'dateTime',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -149,7 +150,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'dateTime',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -164,13 +165,13 @@ export const taskFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
 		},
 		default: false,
-		description: 'Allow only a single submission per assignee',
+		description: 'Whether to allow only a single submission per assignee',
 	},
 	{
 		displayName: 'Employee UUIDs',
@@ -178,7 +179,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -202,7 +203,6 @@ export const taskFields: INodeProperties[] = [
 				],
 			},
 		],
-		description: 'Employee UUIDs',
 	},
 	{
 		displayName: 'Group UUIDs',
@@ -210,7 +210,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -234,7 +234,6 @@ export const taskFields: INodeProperties[] = [
 				],
 			},
 		],
-		description: 'Group UUIDs',
 	},
 	{
 		displayName: 'Company UUIDs',
@@ -242,7 +241,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -266,7 +265,6 @@ export const taskFields: INodeProperties[] = [
 				],
 			},
 		],
-		description: 'Company UUIDs',
 	},
 	{
 		displayName: 'Division UUIDs',
@@ -274,7 +272,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -298,7 +296,6 @@ export const taskFields: INodeProperties[] = [
 				],
 			},
 		],
-		description: 'Division UUIDs',
 	},
 	{
 		displayName: 'Department UUIDs',
@@ -306,7 +303,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -330,7 +327,6 @@ export const taskFields: INodeProperties[] = [
 				],
 			},
 		],
-		description: 'Department UUIDs',
 	},
 	{
 		displayName: 'File UUIDs',
@@ -338,7 +334,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['tasks'],
+				resource: ['task'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},

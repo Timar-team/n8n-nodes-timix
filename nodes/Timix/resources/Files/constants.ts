@@ -22,6 +22,7 @@ export const folderOptions = [
 	'task_assignments',
 	'task_topics',
 	'task_comments',
+	'chat_messages',
 	'assignment_files',
 	'documents',
 	'document_types',

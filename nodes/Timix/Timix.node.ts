@@ -6,6 +6,10 @@ import type {
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
+import { chatFields, chatOperations } from './resources/Chat/description';
+import { resolveTarget } from './resources/Chat/resolveTarget';
+import { searchTargets } from './resources/Chat/searchTargets';
+import { sendMessage } from './resources/Chat/sendMessage';
 import { fileFields, fileOperations } from './resources/Files/description';
 import { uploadFile } from './resources/Files/uploadFile';
 import { taskFields, taskOperations } from './resources/Tasks/description';
@@ -39,6 +43,9 @@ export class Timix implements INodeType {
 				displayName: 'Dynamic Credential',
 				name: 'accessTokenOverride',
 				type: 'string',
+				typeOptions: {
+					password: true,
+				},
 				default: '',
 				placeholder: '={{$json.accessToken}}',
 				description:
@@ -51,16 +58,22 @@ export class Timix implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: 'Files',
-						value: 'files',
+						name: 'Chat',
+						value: 'chat',
 					},
 					{
-						name: 'Tasks',
-						value: 'tasks',
+						name: 'File',
+						value: 'file',
+					},
+					{
+						name: 'Task',
+						value: 'task',
 					},
 				],
-				default: 'files',
+				default: 'file',
 			},
+			...chatOperations,
+			...chatFields,
 			...fileOperations,
 			...fileFields,
 			...taskOperations,
@@ -80,13 +93,31 @@ export class Timix implements INodeType {
 				const resource = this.getNodeParameter('resource', itemIndex) as string;
 				const operation = this.getNodeParameter('operation', itemIndex) as string;
 
-				if (resource === 'files' && operation === 'uploadFile') {
+				if (resource === 'file' && operation === 'uploadFile') {
 					const uploadResults = await uploadFile.call(this, itemIndex);
 					results.push(...uploadResults);
 					continue;
 				}
 
-				if (resource === 'tasks' && operation === 'createTask') {
+				if (resource === 'chat' && operation === 'searchTargets') {
+					const searchResults = await searchTargets.call(this, itemIndex);
+					results.push(...searchResults);
+					continue;
+				}
+
+				if (resource === 'chat' && operation === 'resolveTarget') {
+					const resolveResults = await resolveTarget.call(this, itemIndex);
+					results.push(...resolveResults);
+					continue;
+				}
+
+				if (resource === 'chat' && operation === 'sendMessage') {
+					const sendResults = await sendMessage.call(this, itemIndex);
+					results.push(...sendResults);
+					continue;
+				}
+
+				if (resource === 'task' && operation === 'createTask') {
 					const createResults = await createTask.call(this, itemIndex);
 					results.push(...createResults);
 					continue;

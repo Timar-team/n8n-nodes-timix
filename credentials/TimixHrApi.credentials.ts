@@ -16,7 +16,7 @@ export class TimixHrApi implements ICredentialType {
 		dark: 'file:../nodes/Timix/timix.dark.svg',
 	};
 
-	documentationUrl = '';
+	documentationUrl = 'https://github.com/Timar-team/n8n-nodes-timix';
 
 	properties: INodeProperties[] = [
 		// Base URL for the tenant, without trailing slash.

@@ -9,13 +9,14 @@ export const fileOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: {
 			show: {
-				resource: ['files'],
+				resource: ['file'],
 			},
 		},
 		options: [
 			{
 				name: 'Upload',
 				value: 'uploadFile',
+				action: 'Upload a files',
 				description: 'Upload a file',
 			},
 		],
@@ -31,7 +32,7 @@ export const fileFields: INodeProperties[] = [
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['files'],
+				resource: ['file'],
 				operation: ['uploadFile'],
 			},
 		},
@@ -49,7 +50,7 @@ export const fileFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['files'],
+				resource: ['file'],
 				operation: ['uploadFile'],
 			},
 		},

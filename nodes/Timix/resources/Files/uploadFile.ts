@@ -1,10 +1,11 @@
 import type {
 	IDataObject,
 	IExecuteFunctions,
+	IHttpRequestOptions,
 	INodeExecutionData,
-	IRequestOptions,
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
+import { timixApiRequest } from '../shared';
 
 export async function uploadFile(
 	this: IExecuteFunctions,
@@ -66,37 +67,26 @@ export async function uploadFile(
 		});
 	}
 
-	// Use the shared credential to build a single POST request.
-	const credentials = await this.getCredentials('timixHrApi');
-	const accessTokenOverride = this.getNodeParameter(
-		'accessTokenOverride',
-		itemIndex,
-		'',
-	) as string;
-	const resolvedToken = accessTokenOverride?.toString().trim();
-	const requestOptions: IRequestOptions = {
+	const requestOptions = {
 		method: 'POST',
-		baseURL: credentials.baseUrl as string,
 		url: '/api/v2/file',
 		formData: {
 			folder,
 			files: formFiles,
 		},
-	};
-
-	let response: unknown;
-	if (resolvedToken) {
-		requestOptions.headers = {
-			Authorization: `Bearer ${resolvedToken}`,
+	} as IHttpRequestOptions & {
+		formData: {
+			folder: string;
+			files: Array<{
+				value: unknown;
+				options: {
+					filename: string;
+					contentType: string | undefined;
+				};
+			}>;
 		};
-		response = await this.helpers.request.call(this, requestOptions);
-	} else {
-		response = await this.helpers.requestWithAuthentication.call(
-			this,
-			'timixHrApi',
-			requestOptions,
-		);
-	}
+	};
+	const response: unknown = await timixApiRequest(this, itemIndex, requestOptions);
 
 	// Response shapes vary; extract UUIDs defensively for convenience.
 	const extractUuids = (input: unknown): string[] => {
@@ -193,7 +183,7 @@ export async function uploadFile(
 		// Normalize to a predictable output when UUIDs are present.
 		return [
 			{
-				json: { uuids },
+				json: { uuids, fileUuids: uuids, response: response as IDataObject },
 				pairedItem: { item: itemIndex },
 			},
 		];

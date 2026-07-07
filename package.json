@@ -1,15 +1,15 @@
 {
 	"name": "n8n-nodes-timix",
 	"version": "0.1.0",
-	"description": "",
+	"description": "n8n community nodes for the Timix HR API",
 	"license": "MIT",
 	"homepage": "",
 	"keywords": [
 		"n8n-community-node-package"
 	],
 	"author": {
-		"name": "",
-		"email": ""
+		"name": "Agamyrat Chariyev",
+		"email": "agamyrat.chariyev@gmail.com"
 	},
 	"repository": {
 		"type": "git",
@@ -31,7 +31,7 @@
 		"n8nNodesApiVersion": 1,
 		"strict": true,
 		"credentials": [
-			"dist/credentials/TimixApi.credentials.ts"
+			"dist/credentials/TimixHrApi.credentials.ts"
 		],
 		"nodes": [
 			"dist/nodes/Timix/Timix.node.ts"
