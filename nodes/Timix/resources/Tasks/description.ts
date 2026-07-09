@@ -8,7 +8,7 @@ export const taskOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 			},
 		},
 		options: [
@@ -31,7 +31,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 			},
 		},
@@ -55,7 +55,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'json',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['json'],
 			},
@@ -70,7 +70,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -85,7 +85,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'string',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -102,7 +102,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'options',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -135,7 +135,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'dateTime',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -150,7 +150,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'dateTime',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -165,7 +165,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -179,7 +179,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -210,7 +210,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -241,7 +241,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -272,7 +272,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -303,7 +303,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},
@@ -334,7 +334,7 @@ export const taskFields: INodeProperties[] = [
 		type: 'fixedCollection',
 		displayOptions: {
 			show: {
-				resource: ['task'],
+				resource: ['tasks'],
 				operation: ['createTask'],
 				bodyContentType: ['form'],
 			},

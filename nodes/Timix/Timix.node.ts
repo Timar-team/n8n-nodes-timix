@@ -62,15 +62,15 @@ export class Timix implements INodeType {
 						value: 'chat',
 					},
 					{
-						name: 'File',
-						value: 'file',
+						name: 'Files',
+						value: 'files',
 					},
 					{
-						name: 'Task',
-						value: 'task',
+						name: 'Tasks',
+						value: 'tasks',
 					},
 				],
-				default: 'file',
+				default: 'files',
 			},
 			...chatOperations,
 			...chatFields,
@@ -93,7 +93,7 @@ export class Timix implements INodeType {
 				const resource = this.getNodeParameter('resource', itemIndex) as string;
 				const operation = this.getNodeParameter('operation', itemIndex) as string;
 
-				if (resource === 'file' && operation === 'uploadFile') {
+				if (resource === 'files' && operation === 'uploadFile') {
 					const uploadResults = await uploadFile.call(this, itemIndex);
 					results.push(...uploadResults);
 					continue;
@@ -117,7 +117,7 @@ export class Timix implements INodeType {
 					continue;
 				}
 
-				if (resource === 'task' && operation === 'createTask') {
+				if (resource === 'tasks' && operation === 'createTask') {
 					const createResults = await createTask.call(this, itemIndex);
 					results.push(...createResults);
 					continue;

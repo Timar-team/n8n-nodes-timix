@@ -183,7 +183,7 @@ export async function uploadFile(
 		// Normalize to a predictable output when UUIDs are present.
 		return [
 			{
-				json: { uuids, fileUuids: uuids, response: response as IDataObject },
+				json: { uuids },
 				pairedItem: { item: itemIndex },
 			},
 		];
