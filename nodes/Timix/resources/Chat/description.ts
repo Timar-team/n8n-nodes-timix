@@ -13,6 +13,13 @@ const sendMessageDisplay = {
 	},
 };
 
+const createPollDisplay = {
+	show: {
+		resource: ['chat'],
+		operation: ['createPoll'],
+	},
+};
+
 export const chatOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
@@ -32,6 +39,12 @@ export const chatOperations: INodeProperties[] = [
 				value: 'searchTargets',
 				action: 'Search available chat targets',
 				description: 'Search available chat targets',
+			},
+			{
+				name: 'Create Poll',
+				value: 'createPoll',
+				action: 'Create a poll in a conversation',
+				description: 'Create a poll in a conversation',
 			},
 			{
 				name: 'Send Message',
@@ -131,7 +144,12 @@ export const chatFields: INodeProperties[] = [
 		displayName: 'Conversation UUID',
 		name: 'conversationUuid',
 		type: 'string',
-		displayOptions: sendMessageDisplay,
+		displayOptions: {
+			show: {
+				resource: ['chat'],
+				operation: ['sendMessage', 'createPoll'],
+			},
+		},
 		default: '',
 		required: true,
 		description: 'Conversation UUID returned by Resolve Target',
@@ -224,7 +242,7 @@ export const chatFields: INodeProperties[] = [
 		name: 'mentionAll',
 		type: 'boolean',
 		displayOptions: sendMessageDisplay,
-		default: false,
+		default: true,
 		description: 'Whether to mention all participants in the conversation',
 	},
 	{
@@ -232,6 +250,110 @@ export const chatFields: INodeProperties[] = [
 		name: 'outBoxPattern',
 		type: 'string',
 		displayOptions: sendMessageDisplay,
+		default: '',
+		description: 'Optional outbound pattern identifier',
+	},
+	{
+		displayName: 'Question',
+		name: 'question',
+		type: 'string',
+		displayOptions: createPollDisplay,
+		default: '',
+		required: true,
+		description: 'Poll question, up to 255 characters',
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'fixedCollection',
+		displayOptions: createPollDisplay,
+		default: {},
+		placeholder: 'Add Option',
+		typeOptions: {
+			multipleValues: true,
+		},
+		description: 'Poll options; empty rows are ignored',
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'Text',
+						name: 'text',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: 'Is Multiple Choice',
+		name: 'isMultipleChoice',
+		type: 'boolean',
+		displayOptions: createPollDisplay,
+		default: false,
+		description: 'Whether multiple options can be selected',
+	},
+	{
+		displayName: 'Is Anonymous',
+		name: 'isAnonymous',
+		type: 'boolean',
+		displayOptions: createPollDisplay,
+		default: false,
+		description: 'Whether votes are anonymous',
+	},
+	{
+		displayName: 'Results Visibility',
+		name: 'resultsVisibility',
+		type: 'options',
+		displayOptions: createPollDisplay,
+		options: [
+			{ name: 'Always', value: 'always' },
+			{ name: 'After Vote', value: 'after_vote' },
+			{ name: 'After Close', value: 'after_close' },
+		],
+		default: 'always',
+		description: 'When poll results become visible',
+	},
+	{
+		displayName: 'Allow Vote Change',
+		name: 'allowVoteChange',
+		type: 'boolean',
+		displayOptions: createPollDisplay,
+		default: false,
+		description: 'Whether voters can change their vote',
+	},
+	{
+		displayName: 'Expires At',
+		name: 'expiresAt',
+		type: 'dateTime',
+		displayOptions: createPollDisplay,
+		default: '',
+		description: 'Optional closing date/time',
+	},
+	{
+		displayName: 'Reply To Message UUID',
+		name: 'replyToMessageUuid',
+		type: 'string',
+		displayOptions: createPollDisplay,
+		default: '',
+		description: 'Optional message UUID to reply to',
+	},
+	{
+		displayName: 'Thread Root Message UUID',
+		name: 'threadRootMessageUuid',
+		type: 'string',
+		displayOptions: createPollDisplay,
+		default: '',
+		description: 'Optional thread root message UUID for structure chats',
+	},
+	{
+		displayName: 'Out Box Pattern',
+		name: 'outBoxPattern',
+		type: 'string',
+		displayOptions: createPollDisplay,
 		default: '',
 		description: 'Optional outbound pattern identifier',
 	},

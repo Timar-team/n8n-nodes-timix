@@ -11,6 +11,7 @@ This node uses the **Timix HR API** credential (`timixHrApi`). It must include a
 - **Chat**
   - Search Targets
   - Resolve Target
+  - Create Poll
   - Send Message
 - **Files**
   - Upload File
@@ -28,6 +29,7 @@ This node uses the **Timix HR API** credential (`timixHrApi`). It must include a
 2. `Chat > Resolve Target`
 3. `Files > Upload File` with `Folder=chat_messages` when a message has attachments
 4. `Chat > Send Message`
+5. `Chat > Create Poll` when you need a poll in the same conversation
 
 The node now follows the gateway-backed flow described by the API:
 
@@ -91,6 +93,31 @@ Send a text, file, or audio message to a resolved conversation.
 
 - Provide text content or at least one file UUID
 - `File` and `Audio` message types require uploaded file UUIDs
+- Blank file UUID rows are ignored before sending
+
+## Chat > Create Poll
+
+Create a poll in a resolved conversation.
+
+### Parameters
+
+- `Conversation UUID` (required)
+- `Question` (required)
+- `Options` (at least two non-empty values)
+- `Is Multiple Choice`
+- `Is Anonymous`
+- `Results Visibility`
+- `Allow Vote Change`
+- `Expires At`
+- `Reply To Message UUID`
+- `Thread Root Message UUID`
+- `Out Box Pattern`
+
+### Validation
+
+- Empty option rows are ignored
+- At least two valid options are required
+- `conversationUuid` is sent only in the URL path, not in the body
 
 ## Files > Upload File
 
