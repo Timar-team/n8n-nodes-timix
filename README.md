@@ -112,3 +112,15 @@ Option B: Use npm link
 
 1. Use the **Timix HR API** credential in n8n.
 2. The **Timix Upload File** node expects binary inputs (default property name: `data`).
+3. For split local services, set **HR Base URL** and **Files Base URL** separately. Existing gateway credentials can leave Files Base URL empty.
+
+## Honors and Badges
+
+The Timix node includes the complete Honor integration:
+
+1. `File > Upload` with `Folder=honors` for an optional badge image
+2. `Honor > Create/Get/Get Many/Update/Delete` for reusable badge definitions
+3. `Employee > Search for Honor Assignment` for permission-scoped employee UUID lookup
+4. `Employee Honor > Assign/Get/Get Many/Update/Remove` for employee assignments and expiration rules
+
+Use public UUID values throughout. Employee numeric IDs are not accepted by Honor assignment operations.

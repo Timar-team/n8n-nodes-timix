@@ -1,4 +1,5 @@
 export const folderOptions = [
+	'honors',
 	'skills',
 	'shifts',
 	'currencies',

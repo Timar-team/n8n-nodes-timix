@@ -1,10 +1,10 @@
 # Timix
 
-Timix HR actions grouped by Chat, Files, and Tasks.
+Timix HR actions grouped by Chat, Employees, Employee Honors, Files, Honors, and Tasks.
 
 ## Credentials
 
-This node uses the **Timix HR API** credential (`timixHrApi`). It must include a valid `baseUrl`.
+This node uses the **Timix HR API** credential (`timixHrApi`). Configure the HR base URL and access token. The Files base URL is optional and falls back to the HR base URL for gateway installations.
 
 ## Resources and operations
 
@@ -15,6 +15,20 @@ This node uses the **Timix HR API** credential (`timixHrApi`). It must include a
   - Send Message
 - **Files**
   - Upload File
+- **Employee**
+  - Search for Honor Assignment
+- **Employee Honor**
+  - Assign
+  - Get
+  - Get Many
+  - Update
+  - Remove
+- **Honor**
+  - Create
+  - Get
+  - Get Many
+  - Update
+  - Delete
 - **Tasks**
   - Create Task
 
@@ -150,3 +164,20 @@ Binary data is required. Each input item can contain one or more binary properti
 ## Tasks > Create Task
 
 Creates a Timix task using either form inputs or a raw JSON body.
+
+## Honor workflow
+
+1. Optionally upload an image with `File > Upload` and `Folder=honors`.
+2. Create the reusable badge with `Honor > Create`. Use the first UUID returned by the upload as `File UUID`.
+3. Find employee UUIDs with `Employee > Search for Honor Assignment`.
+4. Connect the honor and employees with `Employee Honor > Assign`.
+
+The Honor and Employee Honor list operations unwrap the HR `payload` by default and emit one n8n item per record. Enable `Include Metadata` to keep the complete HR response envelope.
+
+Honor assignment uses public UUIDs only:
+
+- `honorUuid` identifies the reusable honor definition.
+- `employeeUuids` identifies one or more employees; do not use numeric employee IDs.
+- `assignmentUuid` identifies an existing employee-honor assignment for get, update, and remove.
+
+Assignment update fields expose explicit **Keep**, **Set**, and **Clear** actions so omitted fields remain unchanged while clear actions send `null` to the API.

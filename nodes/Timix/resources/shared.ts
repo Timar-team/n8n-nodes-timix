@@ -1,4 +1,11 @@
-import type { IExecuteFunctions, IHttpRequestOptions } from 'n8n-workflow';
+import type {
+	IDataObject,
+	IExecuteFunctions,
+	IHttpRequestOptions,
+	INodeExecutionData,
+} from 'n8n-workflow';
+
+export type TimixService = 'hr' | 'files';
 
 export const normalizeListFromString = (value: string): string[] =>
 	value
@@ -117,10 +124,44 @@ export const normalizeOptionalString = (value: unknown): string | undefined => {
 	return trimmed.length > 0 ? trimmed : undefined;
 };
 
+export const unwrapHrPayload = (response: unknown): unknown => {
+	if (response && typeof response === 'object' && !Array.isArray(response)) {
+		const record = response as Record<string, unknown>;
+		if (Object.prototype.hasOwnProperty.call(record, 'payload')) {
+			return record.payload;
+		}
+	}
+
+	return response;
+};
+
+const toJsonObject = (value: unknown): IDataObject => {
+	if (value && typeof value === 'object' && !Array.isArray(value)) {
+		return value as IDataObject;
+	}
+
+	return { data: value } as IDataObject;
+};
+
+export const responseToExecutionData = (
+	response: unknown,
+	itemIndex: number,
+	includeMetadata = false,
+): INodeExecutionData[] => {
+	const value = includeMetadata ? response : unwrapHrPayload(response);
+	const records = Array.isArray(value) ? value : [value];
+
+	return records.map((record) => ({
+		json: toJsonObject(record),
+		pairedItem: { item: itemIndex },
+	}));
+};
+
 export async function timixApiRequest<T = unknown>(
 	context: IExecuteFunctions,
 	itemIndex: number,
 	requestOptions: IHttpRequestOptions,
+	service: TimixService = 'hr',
 ): Promise<T> {
 	const credentials = await context.getCredentials('timixHrApi');
 	const accessTokenOverride = context.getNodeParameter(
@@ -130,7 +171,9 @@ export async function timixApiRequest<T = unknown>(
 	) as string;
 	const resolvedToken = accessTokenOverride?.toString().trim();
 
-	requestOptions.baseURL = credentials.baseUrl as string;
+	const filesBaseUrl = normalizeOptionalString(credentials.filesBaseUrl);
+	requestOptions.baseURL =
+		service === 'files' && filesBaseUrl ? filesBaseUrl : (credentials.baseUrl as string);
 
 	if (resolvedToken) {
 		requestOptions.headers = {
