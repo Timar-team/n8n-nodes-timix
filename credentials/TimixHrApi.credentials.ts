@@ -19,14 +19,24 @@ export class TimixHrApi implements ICredentialType {
 	documentationUrl = 'https://github.com/Timar-team/n8n-nodes-timix';
 
 	properties: INodeProperties[] = [
-		// Base URL for the tenant, without trailing slash.
+		// Keep the original key so existing credentials continue to work.
 		{
-			displayName: 'Base URL',
+			displayName: 'HR Base URL',
 			name: 'baseUrl',
 			type: 'string',
 			default: '',
-			placeholder: 'https://company.timix.org',
+			placeholder: 'http://localhost:3001',
 			required: true,
+			description: 'Base URL of the HR service or the shared Timix gateway',
+		},
+		{
+			displayName: 'Files Base URL',
+			name: 'filesBaseUrl',
+			type: 'string',
+			default: '',
+			placeholder: 'http://localhost:3002',
+			description:
+				'Optional base URL of the Files service. Leave empty when HR and Files use the same gateway.',
 		},
 		// Access token provided by Timix HR; stored as a password in n8n.
 		{

@@ -14,11 +14,9 @@ export async function uploadFile(
 	// We rely on binary data attached to the incoming item.
 	const items = this.getInputData();
 	const folder = this.getNodeParameter('folder', itemIndex) as string;
-	const binaryPropertiesList = this.getNodeParameter(
-		'binaryPropertiesList',
-		itemIndex,
-		{},
-	) as { properties?: Array<{ property?: string }> };
+	const binaryPropertiesList = this.getNodeParameter('binaryPropertiesList', itemIndex, {}) as {
+		properties?: Array<{ property?: string }>;
+	};
 
 	// Normalize user-provided binary property names.
 	const binaryPropertiesFromList =
@@ -50,11 +48,9 @@ export async function uploadFile(
 	for (const propertyName of binaryProperties) {
 		const binaryData = items[itemIndex].binary?.[propertyName];
 		if (!binaryData) {
-			throw new NodeOperationError(
-				this.getNode(),
-				`Binary property "${propertyName}" is missing`,
-				{ itemIndex },
-			);
+			throw new NodeOperationError(this.getNode(), `Binary property "${propertyName}" is missing`, {
+				itemIndex,
+			});
 		}
 
 		const buffer = await this.helpers.getBinaryDataBuffer(itemIndex, propertyName);
@@ -86,7 +82,7 @@ export async function uploadFile(
 			}>;
 		};
 	};
-	const response: unknown = await timixApiRequest(this, itemIndex, requestOptions);
+	const response: unknown = await timixApiRequest(this, itemIndex, requestOptions, 'files');
 
 	// Response shapes vary; extract UUIDs defensively for convenience.
 	const extractUuids = (input: unknown): string[] => {

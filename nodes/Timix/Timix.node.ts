@@ -11,8 +11,17 @@ import { createPoll } from './resources/Chat/createPoll';
 import { resolveTarget } from './resources/Chat/resolveTarget';
 import { searchTargets } from './resources/Chat/searchTargets';
 import { sendMessage } from './resources/Chat/sendMessage';
+import {
+	employeeHonorFields,
+	employeeHonorOperations,
+} from './resources/EmployeeHonors/description';
+import { executeEmployeeHonor } from './resources/EmployeeHonors/execute';
+import { employeeFields, employeeOperations } from './resources/Employees/description';
+import { searchEmployeesForHonor } from './resources/Employees/searchForHonor';
 import { fileFields, fileOperations } from './resources/Files/description';
 import { uploadFile } from './resources/Files/uploadFile';
+import { honorFields, honorOperations } from './resources/Honors/description';
+import { executeHonor } from './resources/Honors/execute';
 import { taskFields, taskOperations } from './resources/Tasks/description';
 import { createTask } from './resources/Tasks/createTask';
 
@@ -63,8 +72,20 @@ export class Timix implements INodeType {
 						value: 'chat',
 					},
 					{
+						name: 'Employee',
+						value: 'employees',
+					},
+					{
+						name: 'Employee Honor',
+						value: 'employeeHonors',
+					},
+					{
 						name: 'File',
 						value: 'files',
+					},
+					{
+						name: 'Honor',
+						value: 'honors',
 					},
 					{
 						name: 'Task',
@@ -77,6 +98,12 @@ export class Timix implements INodeType {
 			...chatFields,
 			...fileOperations,
 			...fileFields,
+			...employeeOperations,
+			...employeeFields,
+			...employeeHonorOperations,
+			...employeeHonorFields,
+			...honorOperations,
+			...honorFields,
 			...taskOperations,
 			...taskFields,
 		],
@@ -97,6 +124,24 @@ export class Timix implements INodeType {
 				if (resource === 'files' && operation === 'uploadFile') {
 					const uploadResults = await uploadFile.call(this, itemIndex);
 					results.push(...uploadResults);
+					continue;
+				}
+
+				if (resource === 'employees' && operation === 'searchForHonor') {
+					const employeeResults = await searchEmployeesForHonor.call(this, itemIndex);
+					results.push(...employeeResults);
+					continue;
+				}
+
+				if (resource === 'employeeHonors') {
+					const assignmentResults = await executeEmployeeHonor.call(this, itemIndex, operation);
+					results.push(...assignmentResults);
+					continue;
+				}
+
+				if (resource === 'honors') {
+					const honorResults = await executeHonor.call(this, itemIndex, operation);
+					results.push(...honorResults);
 					continue;
 				}
 
