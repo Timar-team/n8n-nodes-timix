@@ -1,0 +1,46 @@
+{
+	"name": "Timix Message Reaction",
+	"nodes": [
+		{
+			"parameters": {
+				"method": "={{ (() => { const action = $json.action; if (action !== 'add' && action !== 'remove') { throw new Error('Invalid action: expected \"add\" or \"remove\".'); } if (typeof $json.messageUuid !== 'string' || !$json.messageUuid.trim()) { throw new Error('messageUuid is required.'); } if (typeof $json.reaction !== 'string' || !$json.reaction.trim()) { throw new Error('reaction is required.'); } if ([...$json.reaction].length > 32) { throw new Error('reaction must be 32 characters or fewer.'); } if (typeof $json.accessToken !== 'string' || !$json.accessToken.trim()) { throw new Error('accessToken is required.'); } return action === 'add' ? 'POST' : 'DELETE'; })() }}",
+				"url": "={{ $json.action === 'add' ? $env.TIMIX_CHAT_BASE_URL + '/api/v2/chat/messages/' + $json.messageUuid + '/reactions' : $env.TIMIX_CHAT_BASE_URL + '/api/v2/chat/messages/' + $json.messageUuid + '/reactions/' + encodeURIComponent($json.reaction) }}",
+				"sendHeaders": true,
+				"headerParameters": {
+					"parameters": [
+						{
+							"name": "Authorization",
+							"value": "={{ 'Bearer ' + $json.accessToken }}"
+						}
+					]
+				},
+				"sendBody": "={{ $json.action === 'add' }}",
+				"contentType": "json",
+				"specifyBody": "json",
+				"jsonBody": "={{ { reaction: $json.reaction } }}",
+				"options": {}
+			},
+			"type": "n8n-nodes-base.httpRequest",
+			"typeVersion": 4.3,
+			"position": [
+				0,
+				0
+			],
+			"id": "78fcbfbf-a164-43ea-9de0-c560ea9672b4",
+			"name": "Timix Message Reaction",
+			"notesInFlow": true,
+			"notes": "Required input: action (add/remove), messageUuid, reaction (max 32 characters), accessToken. Set TIMIX_CHAT_BASE_URL in the n8n environment, for example http://localhost:3004."
+		}
+	],
+	"pinData": {},
+	"connections": {},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"versionId": "06537a7e-8246-40e8-9413-b9f7cd505012",
+	"meta": {
+		"templateCredsSetupCompleted": true
+	},
+	"tags": []
+}
