@@ -20,6 +20,13 @@ const createPollDisplay = {
 	},
 };
 
+const addMessageReactionDisplay = {
+	show: {
+		resource: ['chat'],
+		operation: ['addMessageReaction'],
+	},
+};
+
 export const chatOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
@@ -28,6 +35,18 @@ export const chatOperations: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: chatResourceDisplay,
 		options: [
+			{
+				name: 'Add Message Reaction',
+				value: 'addMessageReaction',
+				action: 'Add a reaction to a message',
+				description: 'Add an emoji or short reaction code to a message',
+			},
+			{
+				name: 'Create Poll',
+				value: 'createPoll',
+				action: 'Create a poll in a conversation',
+				description: 'Create a poll in a conversation',
+			},
 			{
 				name: 'Resolve Target',
 				value: 'resolveTarget',
@@ -41,12 +60,6 @@ export const chatOperations: INodeProperties[] = [
 				description: 'Search available chat targets',
 			},
 			{
-				name: 'Create Poll',
-				value: 'createPoll',
-				action: 'Create a poll in a conversation',
-				description: 'Create a poll in a conversation',
-			},
-			{
 				name: 'Send Message',
 				value: 'sendMessage',
 				action: 'Send a message to a conversation',
@@ -58,6 +71,25 @@ export const chatOperations: INodeProperties[] = [
 ];
 
 export const chatFields: INodeProperties[] = [
+	{
+		displayName: 'Message UUID',
+		name: 'messageUuid',
+		type: 'string',
+		displayOptions: addMessageReactionDisplay,
+		default: '',
+		required: true,
+		description: 'UUID of the message to react to',
+	},
+	{
+		displayName: 'Reaction',
+		name: 'reaction',
+		type: 'string',
+		displayOptions: addMessageReactionDisplay,
+		default: '',
+		required: true,
+		placeholder: '👍',
+		description: 'Emoji or short reaction code, up to 32 characters',
+	},
 	{
 		displayName: 'Search',
 		name: 'search',

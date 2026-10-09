@@ -7,6 +7,7 @@ import type {
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import { chatFields, chatOperations } from './resources/Chat/description';
+import { addMessageReaction } from './resources/Chat/addMessageReaction';
 import { createPoll } from './resources/Chat/createPoll';
 import { resolveTarget } from './resources/Chat/resolveTarget';
 import { searchTargets } from './resources/Chat/searchTargets';
@@ -166,6 +167,12 @@ export class Timix implements INodeType {
 				if (resource === 'chat' && operation === 'createPoll') {
 					const pollResults = await createPoll.call(this, itemIndex);
 					results.push(...pollResults);
+					continue;
+				}
+
+				if (resource === 'chat' && operation === 'addMessageReaction') {
+					const reactionResults = await addMessageReaction.call(this, itemIndex);
+					results.push(...reactionResults);
 					continue;
 				}
 

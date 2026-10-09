@@ -2,10 +2,64 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
+	buildAddMessageReactionPayload,
 	buildCreatePollPayload,
 	buildPollOptions,
 	buildSendMessagePayload,
 } = require('../dist/nodes/Timix/resources/Chat/helpers.js');
+const {
+	addMessageReaction,
+} = require('../dist/nodes/Timix/resources/Chat/addMessageReaction.js');
+
+const createExecutionContext = (parameters, response) => {
+	const captured = [];
+	const context = {
+		getNodeParameter(name, _itemIndex, defaultValue) {
+			return Object.prototype.hasOwnProperty.call(parameters, name)
+				? parameters[name]
+				: defaultValue;
+		},
+		async getCredentials() {
+			return { baseUrl: 'https://hr.example.test', accessToken: 'token' };
+		},
+		helpers: {
+			async requestWithAuthentication(_credentialType, requestOptions) {
+				captured.push(requestOptions);
+				return response;
+			},
+		},
+	};
+
+	return { context, captured };
+};
+
+test('add message reaction payload trims the reaction', () => {
+	assert.deepEqual(buildAddMessageReactionPayload('  👍  '), { reaction: '👍' });
+});
+
+test('add message reaction payload rejects blank and oversized reactions', () => {
+	assert.throws(() => buildAddMessageReactionPayload('   '), /Reaction is required/);
+	assert.throws(
+		() => buildAddMessageReactionPayload('a'.repeat(33)),
+		/Reaction must be 32 characters or fewer/,
+	);
+});
+
+test('add message reaction operation sends the documented endpoint and body', async () => {
+	const response = { uuid: 'message-uuid', reactions: [{ reaction: '👍', count: 1 }] };
+	const { context, captured } = createExecutionContext(
+		{ messageUuid: 'message-uuid', reaction: ' 👍 ' },
+		response,
+	);
+
+	const output = await addMessageReaction.call(context, 0);
+
+	assert.equal(captured[0].method, 'POST');
+	assert.equal(captured[0].url, '/api/v2/chat/messages/message-uuid/reactions');
+	assert.equal(captured[0].baseURL, 'https://hr.example.test');
+	assert.deepEqual(captured[0].body, { reaction: '👍' });
+	assert.deepEqual(output[0].json, response);
+});
 
 test('buildPollOptions removes empty values and keeps valid texts', () => {
 	const options = buildPollOptions({

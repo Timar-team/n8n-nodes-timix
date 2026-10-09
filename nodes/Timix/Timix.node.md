@@ -9,6 +9,7 @@ This node uses the **Timix HR API** credential (`timixHrApi`). Configure the HR 
 ## Resources and operations
 
 - **Chat**
+  - Add Message Reaction
   - Search Targets
   - Resolve Target
   - Create Poll
@@ -44,6 +45,7 @@ This node uses the **Timix HR API** credential (`timixHrApi`). Configure the HR 
 3. `Files > Upload File` with `Folder=chat_messages` when a message has attachments
 4. `Chat > Send Message`
 5. `Chat > Create Poll` when you need a poll in the same conversation
+6. `Chat > Add Message Reaction` when you want to react to a message
 
 The node now follows the gateway-backed flow described by the API:
 
@@ -51,6 +53,21 @@ The node now follows the gateway-backed flow described by the API:
 - `POST /api/v2/chat/targets/resolve`
 - `POST /api/v2/file`
 - `POST /api/v2/chat/conversations/:uuid/messages`
+- `POST /api/v2/chat/messages/:uuid/reactions`
+
+## Chat > Add Message Reaction
+
+Add an emoji or short reaction code to an existing message.
+
+### Parameters
+
+- `Message UUID` (required)
+- `Reaction` (required, up to 32 characters)
+
+### Behavior
+
+- Sends `POST /api/v2/chat/messages/:uuid/reactions`
+- Trims the reaction before sending `{ reaction }`
 
 ## Chat > Search Targets
 

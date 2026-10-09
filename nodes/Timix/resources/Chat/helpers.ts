@@ -12,6 +12,18 @@ export const getUuidListParameter = (
 ): string[] =>
 	normalizeUuidList(extractCollectionValues(getNodeParameter(name, {}), 'uuid'));
 
+export const buildAddMessageReactionPayload = (reaction: string): IDataObject => {
+	const normalizedReaction = reaction.trim();
+	if (normalizedReaction.length === 0) {
+		throw new Error('Reaction is required');
+	}
+	if (Array.from(normalizedReaction).length > 32) {
+		throw new Error('Reaction must be 32 characters or fewer');
+	}
+
+	return { reaction: normalizedReaction };
+};
+
 export const buildSendMessagePayload = ({
 	messageType,
 	content,
