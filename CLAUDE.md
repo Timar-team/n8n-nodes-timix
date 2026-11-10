@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-An n8n community node package (`n8n-nodes-timix`) exposing the Timix HR API to n8n. It ships **one** node (`Timix`) with a resource/operation selector — Chat, Employee, Employee Honor, File, Honor, Task — plus one credential type (`timixHrApi`). Tooling is `@n8n/node-cli` (`n8n-node`), TypeScript compiled to CommonJS in `dist/`.
+An n8n community node package (`n8n-nodes-timix`) exposing the Timix HR API to n8n. It ships **one** node (`Timix`) with a resource/operation selector — Chat, Employee, Employee Honor, File, Honor, Offer, Task — plus one credential type (`timixHrApi`). Tooling is `@n8n/node-cli` (`n8n-node`), TypeScript compiled to CommonJS in `dist/`.
 
 ## Commands
 
@@ -29,7 +29,7 @@ Deploy a build to a local n8n custom folder: `N8N_CUSTOM_DIR=<path> ./scripts/de
 
 Request flow, which spans several files:
 
-1. `nodes/Timix/Timix.node.ts` — builds the UI by spreading each resource's `*Operations` and `*Fields` arrays from `resources/<Resource>/description.ts`. Its `execute()` loops over input items and dispatches with a chain of `if (resource === … && operation === …)` checks to an operation function called as `fn.call(this, itemIndex)`. Honors and EmployeeHonors instead route to a single `execute*` function that switches on `operation` internally. **Adding an operation means adding both the description entry and a dispatcher branch here.**
+1. `nodes/Timix/Timix.node.ts` — builds the UI by spreading each resource's `*Operations` and `*Fields` arrays from `resources/<Resource>/description.ts`. Its `execute()` loops over input items and dispatches with a chain of `if (resource === … && operation === …)` checks to an operation function called as `fn.call(this, itemIndex)`. Honors, EmployeeHonors and Offers instead route to a single `execute*` function that switches on `operation` internally. **Adding an operation means adding both the description entry and a dispatcher branch here.**
 2. Operation files read parameters, validate/build the body via **pure helpers** (`resources/<Resource>/helpers.ts`), then call `timixApiRequest()`.
 3. `resources/shared.ts` → `timixApiRequest(context, itemIndex, options, service = 'hr')` is the only HTTP entry point. It:
    - picks `baseURL`: credential `filesBaseUrl` when `service === 'files'` and it's set, otherwise `baseUrl` (gateway setups leave Files URL empty). Only file upload uses `'files'`.
@@ -46,7 +46,8 @@ Domain rules worth knowing:
 - Honor / Employee Honor use **public UUIDs** only; numeric employee IDs are not accepted.
 - PATCH-style updates distinguish keep / set / clear (clear sends explicit `null`, e.g. `fileUuid: null` to remove a honor image). Keep that three-way distinction when adding update fields.
 - "Return All" pagination (Honors, Employee Honors) pages 100 at a time with a hard 1000-page cap.
-- File upload sends multipart to the Files service, max 10 binary properties per request; defaults to all binary fields on the item if none are listed.
+- File upload sends multipart to the Files service, max 10 binary properties per request; defaults to all binary fields on the item if none are listed. The multipart request itself lives in `Files/helpers.ts` (`uploadBinaryProperties`) and is shared with Offer attachments.
+- Offer / Complaint share `POST /api/v2/offers` (`type` fixed by the operation). The API stores unknown body keys, so send only documented fields. It is not idempotent (creates a record + notifications per call): never add retries. HTTP errors are mapped to `NodeApiError` with status and API `message` in `Offers/execute.ts`.
 - Credential test hits `GET /api/v2/health` on the HR base URL. Endpoints are under `/api/v2/...`.
 
 ## Testing pattern

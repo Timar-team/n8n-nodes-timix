@@ -1,11 +1,6 @@
-import type {
-	IDataObject,
-	IExecuteFunctions,
-	IHttpRequestOptions,
-	INodeExecutionData,
-} from 'n8n-workflow';
+import type { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
-import { timixApiRequest } from '../shared';
+import { MAX_FILES_PER_UPLOAD, uploadBinaryProperties } from './helpers';
 
 export async function uploadFile(
 	this: IExecuteFunctions,
@@ -37,52 +32,14 @@ export async function uploadFile(
 	}
 
 	// Backend limit: max 10 files per request.
-	if (binaryProperties.length > 10) {
+	if (binaryProperties.length > MAX_FILES_PER_UPLOAD) {
 		throw new NodeOperationError(this.getNode(), 'Maximum 10 files allowed per request', {
 			itemIndex,
 		});
 	}
 
-	// Build multipart form data with the binary buffers.
-	const formFiles = [];
-	for (const propertyName of binaryProperties) {
-		const binaryData = items[itemIndex].binary?.[propertyName];
-		if (!binaryData) {
-			throw new NodeOperationError(this.getNode(), `Binary property "${propertyName}" is missing`, {
-				itemIndex,
-			});
-		}
-
-		const buffer = await this.helpers.getBinaryDataBuffer(itemIndex, propertyName);
-		formFiles.push({
-			value: buffer,
-			options: {
-				filename: binaryData.fileName ?? propertyName,
-				contentType: binaryData.mimeType,
-			},
-		});
-	}
-
-	const requestOptions = {
-		method: 'POST',
-		url: '/api/v2/file',
-		formData: {
-			folder,
-			files: formFiles,
-		},
-	} as IHttpRequestOptions & {
-		formData: {
-			folder: string;
-			files: Array<{
-				value: unknown;
-				options: {
-					filename: string;
-					contentType: string | undefined;
-				};
-			}>;
-		};
-	};
-	const response: unknown = await timixApiRequest(this, itemIndex, requestOptions, 'files');
+	// Build multipart form data with the binary buffers and send it to the Files service.
+	const response: unknown = await uploadBinaryProperties(this, itemIndex, folder, binaryProperties);
 
 	// Response shapes vary; extract UUIDs defensively for convenience.
 	const extractUuids = (input: unknown): string[] => {

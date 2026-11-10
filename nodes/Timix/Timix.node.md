@@ -1,6 +1,6 @@
 # Timix
 
-Timix HR actions grouped by Chat, Employees, Employee Honors, Files, Honors, and Tasks.
+Timix HR actions grouped by Chat, Employees, Employee Honors, Files, Honors, Offers, and Tasks.
 
 ## Credentials
 
@@ -30,6 +30,9 @@ This node uses the **Timix HR API** credential (`timixHrApi`). Configure the HR 
   - Get Many
   - Update
   - Delete
+- **Offer**
+  - Create Offer
+  - Create Complaint
 - **Tasks**
   - Create Task
 
@@ -177,6 +180,48 @@ Binary data is required. Each input item can contain one or more binary properti
 - **No binary properties found**
 - **Maximum 10 files allowed per request**
 - **Binary property "X" is missing**
+
+## Offer > Create Offer / Create Complaint
+
+Create an offer (suggestion) or a complaint in the company of the access token owner. Both operations use the same endpoint; the operation fixes the `type` field to `offer` or `complaint`, and it is not shown in the UI.
+
+### Parameters
+
+- `Title` (required)
+- `Description` (required, multi-line)
+- `Solution`: required for **Create Complaint**; optional for **Create Offer** (under Additional Fields)
+- `Anonymous` (default `true`): when off, the record is created in the name of the owner of the credential's access token (or of the `Dynamic Credential` token, if set). The node cannot write an offer on behalf of another employee.
+- `Attachments` (Additional Fields, optional): comma-separated binary property names of the input item, e.g. `data, data_1`
+- `Include Metadata`: return the full HR response envelope instead of only `payload`
+
+### Validation (before any request)
+
+- `Title` and `Description` must not be empty after trimming
+- `Solution` must not be empty after trimming for complaints
+- `Anonymous` is always sent as a JSON boolean; `"true"` / `"false"` strings from expressions are converted, anything else is rejected
+- At most 10 attachments; every listed binary property must exist on the item
+
+### Behavior
+
+1. If `Attachments` is set, uploads all files in one multipart `POST /api/v2/file` request with `folder=offers` to the Files service and reads the UUIDs from the returned array (`[i].uuid`).
+2. Sends `POST /api/v2/offers` to the HR service with only `title`, `description`, `type`, `anonymity`, and, when present, `solution` and `fileUuids`. Empty optional fields are omitted.
+3. Emits one item per input item containing the created record (`payload`). Create responses do not include `files`, `isActive`, `reviewerNote`, or `isOwn`, and `solution` only when it was sent.
+
+### Not idempotent
+
+Every successful run creates a new record and notifies employees with the `offers` permission. The node never retries these requests; avoid enabling **Retry On Fail** in the node settings.
+
+### Errors
+
+API errors are reported as `<action> failed (HTTP <status>): <API message>` with a hint:
+
+- **400** validation error, e.g. `If type = complaint then provide also solution`
+- **401** token missing, invalid, or expired
+- **404** `modified_files not found`: none of the attached file UUIDs exist
+- **413** file or storage limit exceeded during upload (max 200 MB per file)
+- **419** the token owner's employee account is blocked
+- **429** rate limit
+- **5xx** on create: the record may or may not exist; check before running again
 
 ## Tasks > Create Task
 

@@ -23,6 +23,8 @@ import { fileFields, fileOperations } from './resources/Files/description';
 import { uploadFile } from './resources/Files/uploadFile';
 import { honorFields, honorOperations } from './resources/Honors/description';
 import { executeHonor } from './resources/Honors/execute';
+import { offerFields, offerOperations } from './resources/Offers/description';
+import { executeOffer } from './resources/Offers/execute';
 import { taskFields, taskOperations } from './resources/Tasks/description';
 import { createTask } from './resources/Tasks/createTask';
 
@@ -89,6 +91,10 @@ export class Timix implements INodeType {
 						value: 'honors',
 					},
 					{
+						name: 'Offer',
+						value: 'offers',
+					},
+					{
 						name: 'Task',
 						value: 'tasks',
 					},
@@ -105,6 +111,8 @@ export class Timix implements INodeType {
 			...employeeHonorFields,
 			...honorOperations,
 			...honorFields,
+			...offerOperations,
+			...offerFields,
 			...taskOperations,
 			...taskFields,
 		],
@@ -143,6 +151,12 @@ export class Timix implements INodeType {
 				if (resource === 'honors') {
 					const honorResults = await executeHonor.call(this, itemIndex, operation);
 					results.push(...honorResults);
+					continue;
+				}
+
+				if (resource === 'offers') {
+					const offerResults = await executeOffer.call(this, itemIndex, operation);
+					results.push(...offerResults);
 					continue;
 				}
 
