@@ -46,8 +46,8 @@ Domain rules worth knowing:
 - Honor / Employee Honor use **public UUIDs** only; numeric employee IDs are not accepted.
 - PATCH-style updates distinguish keep / set / clear (clear sends explicit `null`, e.g. `fileUuid: null` to remove a honor image). Keep that three-way distinction when adding update fields.
 - "Return All" pagination (Honors, Employee Honors) pages 100 at a time with a hard 1000-page cap.
-- File upload sends multipart to the Files service, max 10 binary properties per request; defaults to all binary fields on the item if none are listed. The multipart request itself lives in `Files/helpers.ts` (`uploadBinaryProperties`) and is shared with Offer attachments.
-- Offer / Complaint share `POST /api/v2/offers` (`type` fixed by the operation). The API stores unknown body keys, so send only documented fields. It is not idempotent (creates a record + notifications per call): never add retries. HTTP errors are mapped to `NodeApiError` with status and API `message` in `Offers/execute.ts`.
+- File upload sends multipart to the Files service, max 10 binary properties per request; defaults to all binary fields on the item if none are listed. The multipart request itself lives in `Files/helpers.ts` (`uploadBinaryProperties`).
+- Offer / Complaint share `POST /api/v2/offers` (`type` fixed by the operation). The API stores unknown body keys, so send only documented fields. Files are attached by passing already-uploaded UUIDs as `fileUuids` (the node does not upload them). It is not idempotent (creates a record + notifications per call): never add retries. HTTP errors are mapped to `NodeApiError` with status and API `message` in `Offers/execute.ts`.
 - Credential test hits `GET /api/v2/health` on the HR base URL. Endpoints are under `/api/v2/...`.
 
 ## Testing pattern

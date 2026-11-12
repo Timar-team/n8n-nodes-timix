@@ -13,16 +13,6 @@ const operationDisplay = (...operations: string[]) => ({
 	},
 });
 
-const attachmentsField: INodeProperties = {
-	displayName: 'Attachments',
-	name: 'attachments',
-	type: 'string',
-	default: '',
-	placeholder: 'data, data_1',
-	description:
-		'Comma-separated names of binary properties on the input item to attach. They are uploaded to the offers folder in one request first (max 10 files, 200 MB each).',
-};
-
 export const offerOperations: INodeProperties[] = [
 	{
 		displayName: 'Operation',
@@ -90,6 +80,32 @@ export const offerFields: INodeProperties[] = [
 			'Whether to create the record without an author. When off, it is created in the name of the access token owner from the credential (or from Dynamic Credential, if set).',
 	},
 	{
+		displayName: 'File UUIDs',
+		name: 'fileUuids',
+		type: 'fixedCollection',
+		displayOptions: operationDisplay('createOffer', 'createComplaint'),
+		default: {},
+		placeholder: 'Add UUID',
+		typeOptions: {
+			multipleValues: true,
+		},
+		options: [
+			{
+				name: 'values',
+				displayName: 'Values',
+				values: [
+					{
+						displayName: 'UUID',
+						name: 'uuid',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+		description: 'Optional file UUIDs',
+	},
+	{
 		displayName: 'Additional Fields',
 		name: 'additionalFields',
 		type: 'collection',
@@ -97,7 +113,6 @@ export const offerFields: INodeProperties[] = [
 		displayOptions: operationDisplay('createOffer'),
 		default: {},
 		options: [
-			attachmentsField,
 			{
 				displayName: 'Solution',
 				name: 'solution',
@@ -107,15 +122,6 @@ export const offerFields: INodeProperties[] = [
 				description: 'Optional proposed solution for the offer',
 			},
 		],
-	},
-	{
-		displayName: 'Additional Fields',
-		name: 'additionalFields',
-		type: 'collection',
-		placeholder: 'Add Field',
-		displayOptions: operationDisplay('createComplaint'),
-		default: {},
-		options: [attachmentsField],
 	},
 	{
 		displayName: 'Include Metadata',

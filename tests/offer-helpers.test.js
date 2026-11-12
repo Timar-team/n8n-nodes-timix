@@ -4,9 +4,8 @@ const assert = require('node:assert/strict');
 const {
 	buildCreateOfferPayload,
 	describeOfferApiError,
-	extractUploadedFileUuids,
 	getApiErrorDetails,
-	parseAttachmentPropertyNames,
+	getOfferFileUuids,
 } = require('../dist/nodes/Timix/resources/Offers/helpers.js');
 const { executeOffer } = require('../dist/nodes/Timix/resources/Offers/execute.js');
 
@@ -14,11 +13,14 @@ const FILE_UUID_1 = '0b6f2a8e-3c1d-4f5a-9b7e-1a2b3c4d5e6f';
 const FILE_UUID_2 = '7c9d1e2f-4a5b-4c6d-8e7f-9a0b1c2d3e4f';
 const OFFER_UUID = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
 
+/** "File UUIDs" fixedCollection value, as n8n passes it (same shape as Tasks > Create Task). */
+const fileUuidRows = (...uuids) => ({ values: uuids.map((uuid) => ({ uuid })) });
+
 /**
  * Fake IExecuteFunctions. `responses` is consumed in order by each HTTP call;
  * an Error entry is thrown instead of returned.
  */
-const createExecutionContext = (parameters, responses = [], binary = {}) => {
+const createExecutionContext = (parameters, responses = []) => {
 	const captured = [];
 	const queue = [...responses];
 	const context = {
@@ -35,7 +37,7 @@ const createExecutionContext = (parameters, responses = [], binary = {}) => {
 			};
 		},
 		getInputData() {
-			return [{ json: { source: 'input' }, binary }];
+			return [{ json: { source: 'input' } }];
 		},
 		getNode() {
 			return {
@@ -54,9 +56,6 @@ const createExecutionContext = (parameters, responses = [], binary = {}) => {
 				if (next instanceof Error) throw next;
 				return next;
 			},
-			async getBinaryDataBuffer(_itemIndex, propertyName) {
-				return Buffer.from(`content of ${propertyName}`);
-			},
 		},
 	};
 
@@ -64,8 +63,6 @@ const createExecutionContext = (parameters, responses = [], binary = {}) => {
 };
 
 const createResponse = (payload) => ({ payload, delay: 15, timestamp: 1794297600000 });
-
-const binaryFile = (fileName, mimeType) => ({ data: '', fileName, mimeType });
 
 const httpError = (statusCode, body) =>
 	Object.assign(new Error(`${statusCode} - ${JSON.stringify(body)}`), {
@@ -175,31 +172,15 @@ test('blank title or description is rejected', () => {
 	);
 });
 
-// --- Attachments helpers -------------------------------------------------
+// --- File UUIDs input ---------------------------------------------------
 
-test('attachment property names are split on commas, trimmed and de-duplicated', () => {
-	assert.deepEqual(parseAttachmentPropertyNames(' data, data_1, ,data '), ['data', 'data_1']);
-	assert.deepEqual(parseAttachmentPropertyNames(''), []);
-	assert.deepEqual(parseAttachmentPropertyNames(undefined), []);
-});
-
-test('more than 10 attachments are rejected', () => {
-	const names = Array.from({ length: 11 }, (_, index) => `file_${index}`).join(',');
-	assert.throws(() => parseAttachmentPropertyNames(names), /Too many attachments: 11 given/);
-});
-
-test('uploaded file UUIDs are read from the bare array returned by the Files service', () => {
-	const response = [
-		{ uuid: FILE_UUID_1, name: 'a.pdf' },
-		{ uuid: FILE_UUID_2, name: 'b.png' },
-	];
-
-	assert.deepEqual(extractUploadedFileUuids(response), [FILE_UUID_1, FILE_UUID_2]);
-	assert.deepEqual(extractUploadedFileUuids(JSON.stringify(response)), [FILE_UUID_1, FILE_UUID_2]);
-	assert.throws(
-		() => extractUploadedFileUuids({ payload: response }),
-		/expected an array of files/,
+test('file UUIDs are read from the fixedCollection rows, trimmed and de-duplicated', () => {
+	assert.deepEqual(
+		getOfferFileUuids(fileUuidRows(` ${FILE_UUID_1} `, '', FILE_UUID_2, FILE_UUID_1)),
+		[FILE_UUID_1, FILE_UUID_2],
 	);
+	assert.deepEqual(getOfferFileUuids({}), []);
+	assert.deepEqual(getOfferFileUuids(undefined), []);
 });
 
 // --- Operation: request and output ---------------------------------------
@@ -268,10 +249,9 @@ test('create complaint without a solution fails before any request', async () =>
 			description: 'Akşam çok karanlık.',
 			solution: '   ',
 			anonymity: true,
-			additionalFields: { attachments: 'data' },
+			fileUuids: fileUuidRows(FILE_UUID_1),
 		},
 		[],
-		{ data: binaryFile('photo.jpg', 'image/jpeg') },
 	);
 
 	await assert.rejects(executeOffer.call(context, 0, 'createComplaint'), (error) => {
@@ -295,53 +275,27 @@ test('Include Metadata returns the full HR envelope', async () => {
 	assert.deepEqual(output[0].json, response);
 });
 
-// --- Operation: attachment upload -> fileUuids ---------------------------
+// --- Operation: fileUuids ------------------------------------------------
 
-test('attachments are uploaded to folder offers first and their UUIDs sent as fileUuids', async () => {
+test('complaint sends File UUIDs as fileUuids', async () => {
 	const { context, captured } = createExecutionContext(
 		{
 			title: 'Otopark',
 			description: 'Akşam çok karanlık.',
 			solution: 'Ek lamba takılsın.',
 			anonymity: true,
-			additionalFields: { attachments: 'data, data_1' },
+			fileUuids: fileUuidRows(FILE_UUID_1, FILE_UUID_2),
 		},
-		[
-			[
-				{ uuid: FILE_UUID_1, name: 'photo.jpg' },
-				{ uuid: FILE_UUID_2, name: 'plan.pdf' },
-			],
-			createResponse({ uuid: OFFER_UUID, type: 'complaint' }),
-		],
-		{
-			data: binaryFile('photo.jpg', 'image/jpeg'),
-			data_1: binaryFile('plan.pdf', 'application/pdf'),
-		},
+		[createResponse({ uuid: OFFER_UUID, type: 'complaint' })],
 	);
 
 	const output = await executeOffer.call(context, 0, 'createComplaint');
 
-	assert.equal(captured.length, 2);
-
-	const [upload, create] = captured;
-	assert.equal(upload.method, 'POST');
-	assert.equal(upload.url, '/api/v2/file');
-	assert.equal(upload.baseURL, 'https://files.example.test');
-	assert.equal(upload.formData.folder, 'offers');
-	assert.deepEqual(
-		upload.formData.files.map((file) => file.options),
-		[
-			{ filename: 'photo.jpg', contentType: 'image/jpeg' },
-			{ filename: 'plan.pdf', contentType: 'application/pdf' },
-		],
-	);
-	assert.equal(upload.formData.files[0].value.toString(), 'content of data');
-	// The multipart boundary is left to the HTTP client.
-	assert.equal(upload.headers?.['Content-Type'], undefined);
-
-	assert.equal(create.url, '/api/v2/offers');
-	assert.equal(create.baseURL, 'https://hr.example.test');
-	assert.deepEqual(create.body, {
+	assert.equal(captured.length, 1);
+	assert.equal(captured[0].method, 'POST');
+	assert.equal(captured[0].url, '/api/v2/offers');
+	assert.equal(captured[0].baseURL, 'https://hr.example.test');
+	assert.deepEqual(captured[0].body, {
 		title: 'Otopark',
 		description: 'Akşam çok karanlık.',
 		type: 'complaint',
@@ -352,22 +306,21 @@ test('attachments are uploaded to folder offers first and their UUIDs sent as fi
 	assert.deepEqual(output[0].json, { uuid: OFFER_UUID, type: 'complaint' });
 });
 
-test('offer solution and attachments come from Additional Fields', async () => {
+test('offer sends File UUIDs and the solution from Additional Fields', async () => {
 	const { context, captured } = createExecutionContext(
 		{
 			title: 'Vejetaryen menü',
 			description: 'Haftada iki gün olsun.',
 			anonymity: true,
-			additionalFields: { solution: 'Salı ve perşembe', attachments: 'data' },
+			fileUuids: fileUuidRows(FILE_UUID_1),
+			additionalFields: { solution: 'Salı ve perşembe' },
 		},
-		[[{ uuid: FILE_UUID_1 }], createResponse({ uuid: OFFER_UUID })],
-		{ data: binaryFile('menu.pdf', 'application/pdf') },
+		[createResponse({ uuid: OFFER_UUID })],
 	);
 
 	await executeOffer.call(context, 0, 'createOffer');
 
-	assert.equal(captured[0].formData.folder, 'offers');
-	assert.deepEqual(captured[1].body, {
+	assert.deepEqual(captured[0].body, {
 		title: 'Vejetaryen menü',
 		description: 'Haftada iki gün olsun.',
 		type: 'offer',
@@ -377,55 +330,15 @@ test('offer solution and attachments come from Additional Fields', async () => {
 	});
 });
 
-test('more than 10 attachments fail before uploading anything', async () => {
-	const names = Array.from({ length: 11 }, (_, index) => `file_${index}`);
-	const binary = Object.fromEntries(names.map((name) => [name, binaryFile(`${name}.txt`)]));
+test('empty File UUID rows are omitted from the body', async () => {
 	const { context, captured } = createExecutionContext(
-		{
-			title: 'T',
-			description: 'D',
-			anonymity: true,
-			additionalFields: { attachments: names.join(',') },
-		},
-		[],
-		binary,
+		{ title: 'T', description: 'D', anonymity: true, fileUuids: fileUuidRows('  ') },
+		[createResponse({ uuid: OFFER_UUID })],
 	);
 
-	await assert.rejects(executeOffer.call(context, 0, 'createOffer'), /Too many attachments/);
-	assert.equal(captured.length, 0);
-});
+	await executeOffer.call(context, 0, 'createOffer');
 
-test('a missing binary property fails before uploading anything', async () => {
-	const { context, captured } = createExecutionContext(
-		{
-			title: 'T',
-			description: 'D',
-			anonymity: true,
-			additionalFields: { attachments: 'data, nope' },
-		},
-		[],
-		{ data: binaryFile('a.txt', 'text/plain') },
-	);
-
-	await assert.rejects(
-		executeOffer.call(context, 0, 'createOffer'),
-		/Binary property "nope" is missing/,
-	);
-	assert.equal(captured.length, 0);
-});
-
-test('an upload response without UUIDs stops before creating the offer', async () => {
-	const { context, captured } = createExecutionContext(
-		{ title: 'T', description: 'D', anonymity: true, additionalFields: { attachments: 'data' } },
-		[[]],
-		{ data: binaryFile('a.txt', 'text/plain') },
-	);
-
-	await assert.rejects(
-		executeOffer.call(context, 0, 'createOffer'),
-		/Attachment upload returned no file UUIDs, so the offer was not created/,
-	);
-	assert.equal(captured.length, 1);
+	assert.equal('fileUuids' in captured[0].body, false);
 });
 
 // --- Operation: API errors -----------------------------------------------
@@ -459,29 +372,14 @@ test('a 404 for unknown file UUIDs explains the modified_files error', async () 
 	const wrapped = Object.assign(new Error('The resource you are requesting could not be found'), {
 		cause: httpError(404, { message: 'modified_files not found' }),
 	});
-	const { context } = createExecutionContext(
-		{ title: 'T', description: 'D', anonymity: true, additionalFields: { attachments: 'data' } },
-		[[{ uuid: FILE_UUID_1 }], wrapped],
-		{ data: binaryFile('a.txt', 'text/plain') },
+	const { context, captured } = createExecutionContext(
+		{ title: 'T', description: 'D', anonymity: true, fileUuids: fileUuidRows(FILE_UUID_1) },
+		[wrapped],
 	);
 
 	await assert.rejects(executeOffer.call(context, 0, 'createOffer'), (error) => {
 		assert.equal(error.message, 'Creating the offer failed (HTTP 404): modified_files not found');
-		assert.match(error.description, /None of the attached file UUIDs were found/);
-		return true;
-	});
-});
-
-test('a 413 during upload is reported as an attachment upload failure', async () => {
-	const { context, captured } = createExecutionContext(
-		{ title: 'T', description: 'D', anonymity: true, additionalFields: { attachments: 'data' } },
-		[httpError(413, { message: 'Storage limit exceeded' })],
-		{ data: binaryFile('big.zip', 'application/zip') },
-	);
-
-	await assert.rejects(executeOffer.call(context, 0, 'createOffer'), (error) => {
-		assert.equal(error.message, 'Attachment upload failed (HTTP 413): Storage limit exceeded');
-		assert.match(error.description, /200 MB/);
+		assert.match(error.description, /None of the given File UUIDs were found/);
 		return true;
 	});
 	assert.equal(captured.length, 1);
@@ -512,7 +410,7 @@ test('API error details are read from common n8n error shapes', () => {
 		message: 'Unauthorized',
 	});
 	assert.deepEqual(
-		describeOfferApiError('create', 'offer', { status: 502 }).description,
+		describeOfferApiError('offer', { status: 502 }).description,
 		'The offer may or may not have been created. Check before running again: a repeated request creates a duplicate and sends notifications again.',
 	);
 });
